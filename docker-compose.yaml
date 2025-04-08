@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_springboot_todo_list
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: biblioteca_virtual
+      POSTGRES_DB: biblioteca
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
