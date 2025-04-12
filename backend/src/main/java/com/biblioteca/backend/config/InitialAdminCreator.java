@@ -36,7 +36,7 @@ public class InitialAdminCreator implements CommandLineRunner {
             adminUser.setName(adminName);
             adminUser.setEmail(adminEmail);
             adminUser.setPassword(passwordEncoder.encode(adminPassword));
-            adminUser.setRoles(Set.of("ADMIN", "USER"));
+            adminUser.setRoles(Set.of("ADMIN", "USER", "BIBLIOTECARIO"));
             userRepository.save(adminUser);
             System.out.println("Administrador inicial criado com email: " + adminEmail);
         } else {

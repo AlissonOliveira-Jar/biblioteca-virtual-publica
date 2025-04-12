@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -58,6 +59,16 @@ public class UserController {
             @Valid @RequestBody UserUpdateDTO dto
     ) {
         UserDTO updatedUser = userService.updateUser(id, dto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PatchMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> updateUserRoles(
+            @PathVariable UUID id,
+            @RequestBody Set<String> roles
+    ) {
+        UserDTO updatedUser = userService.updateUserRoles(id, roles);
         return ResponseEntity.ok(updatedUser);
     }
 

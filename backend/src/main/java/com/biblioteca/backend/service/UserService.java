@@ -8,8 +8,6 @@ import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
 import com.biblioteca.backend.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,10 +67,9 @@ public class UserService {
         if (roles == null || roles.isEmpty()) {
             return Set.of("USER");
         }
-
         return roles.stream()
                 .map(String::toUpperCase)
-                .filter(role -> role.equals("USER") || role.equals("ADMIN"))
+                .filter(role -> role.equals("USER") || role.equals("ADMIN") || role.equals("BIBLIOTECARIO"))
                 .collect(Collectors.toSet());
     }
 
@@ -122,5 +119,15 @@ public class UserService {
                 .stream()
                 .map(UserDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public UserDTO updateUserRoles(UUID id, Set<String> roles) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        user.setRoles(validateRoles(roles));
+        User updatedUser = userRepository.save(user);
+        return UserDTO.fromEntity(updatedUser);
     }
 }
