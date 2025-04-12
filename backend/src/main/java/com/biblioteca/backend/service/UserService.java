@@ -117,9 +117,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public List<UserDTO> getAllUsers(int page, int size) {
-        Page<User> usersPage = userRepository.findAll(PageRequest.of(page, size));
-        return usersPage.getContent()
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll()
                 .stream()
                 .map(UserDTO::fromEntity)
                 .toList();
