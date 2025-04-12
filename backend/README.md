@@ -16,3 +16,6 @@ basta executar o projeto no arquivo `BibliotecaApplication`,
 que automaticamente o serviço do compose executará o banco de dados PostgreSQL.
 
 Por padrão o serviço estará disponível em `http://localhost:8080`.
+
+Usuário Administrador será criado automáticamente, 
+para saber ou alterar informações, elas estão em `application.properties`.
