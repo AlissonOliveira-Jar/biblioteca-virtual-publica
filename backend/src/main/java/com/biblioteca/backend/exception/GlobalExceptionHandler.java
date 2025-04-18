@@ -127,5 +127,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    @ExceptionHandler(AutorNotFoundException.class)
+    public ResponseEntity<Object> handleAutorNotFoundException(AutorNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EditoraNotFoundException.class)
+    public ResponseEntity<Object> handleEditoraNotFoundException(EditoraNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LivroNotFoundException.class)
+    public ResponseEntity<Object> handleLivroNotFoundException(LivroNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ArtigoNotFoundException.class)
+    public ResponseEntity<Object> handleArtigoNotFoundException(ArtigoNotFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
 }
