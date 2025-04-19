@@ -1,8 +1,6 @@
 package com.biblioteca.backend.controller;
 
-import com.biblioteca.backend.dto.request.LoginDTO;
-import com.biblioteca.backend.dto.request.UserCreateDTO;
-import com.biblioteca.backend.dto.request.UserDTO;
+import com.biblioteca.backend.dto.request.*;
 import com.biblioteca.backend.dto.response.JwtResponse;
 import com.biblioteca.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -37,4 +35,17 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<Void> esqueciSenha(@Valid @RequestBody EsqueciSenhaDTO dto) {
+        authService.iniciarRedefinicaoSenha(dto.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Void> redefinirSenha(@Valid @RequestBody RedefinirSenhaDTO dto) {
+        authService.finalizarRedefinicaoSenha(dto.token(), dto.novaSenha());
+        return ResponseEntity.ok().build();
+    }
+
 }
