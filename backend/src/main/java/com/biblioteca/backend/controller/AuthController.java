@@ -2,15 +2,13 @@ package com.biblioteca.backend.controller;
 
 import com.biblioteca.backend.dto.request.*;
 import com.biblioteca.backend.dto.response.JwtResponse;
+import com.biblioteca.backend.exception.TokenInvalidoException;
 import com.biblioteca.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,6 +44,16 @@ public class AuthController {
     public ResponseEntity<Void> redefinirSenha(@Valid @RequestBody RedefinirSenhaDTO dto) {
         authService.finalizarRedefinicaoSenha(dto.token(), dto.novaSenha());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/redefinir-senha")
+    public ResponseEntity<String> verificarTokenRedefinicao(@RequestParam("token") String token) {
+        try {
+            authService.validarTokenRedefinicao(token);
+            return ResponseEntity.ok("Token válido. Você pode prosseguir para redefinir sua senha.");
+        } catch (TokenInvalidoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 }

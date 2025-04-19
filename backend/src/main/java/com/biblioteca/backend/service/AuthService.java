@@ -28,6 +28,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     private static final long TOKEN_EXPIRATION_MINUTES = 30;
 
@@ -61,8 +62,20 @@ public class AuthService {
             user.setResetTokenExpiry(expiryDate);
             userRepository.save(user);
 
+            emailService.enviarEmailRedefinicaoSenha(email, resetToken);
+
             String resetLink = "http://localhost:8080/api/auth/redefinir-senha?token=" + resetToken;
             System.out.println("Link de redefinição de senha enviado para: " + email + "\nLink: " + resetLink);
+        }
+
+    }
+
+    public void validarTokenRedefinicao(String token) {
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new TokenInvalidoException("Token de redefinição inválido"));
+
+        if (user.getResetTokenExpiry().isBefore(Instant.now())) {
+            throw new TokenInvalidoException("Token de redefinição expirou");
         }
 
     }
@@ -77,11 +90,10 @@ public class AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(novaSenha));
-
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
-
         userRepository.save(user);
+
     }
 
 }

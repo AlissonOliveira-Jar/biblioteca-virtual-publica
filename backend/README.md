@@ -1,7 +1,9 @@
 # Biblioteca Virtual Pública (backend)
 
 Este projeto é uma aplicação backend para uma biblioteca virtual pública. 
-Ele fornece um sistema completo de cadastro, login e manipulação de usuários por operações CRUD.
+Ele fornece um sistema completo de cadastro, login e de usuário bem como esqueci senha e redefinição.
+Operações CRUD para: User, Livro, Artigo, Autor e Editora.
+mas para certas operações dependerá da sua role, se você é um User, Bibliotecario ou Administrador.
 
 ## Pré-requisitos:
 
@@ -34,3 +36,8 @@ A especificação da API no formato JSON também pode ser acessada em:
 
 Usuário Administrador será criado automaticamente,
 para saber ou alterar informações, elas estão em `application.properties`.
+
+## Esqueci a Senha
+Para essa funcionalidade ser usada é necessário adicionar um e-mail real, caso utilize autenticação de dois fatores,
+você precisará criar uma senha em `https://myaccount.google.com/` na opção segurança busque por "senhas de app",
+será gerada uma senha única que você utilizará no campo `spring.mail.password=` que está no application.properties.
