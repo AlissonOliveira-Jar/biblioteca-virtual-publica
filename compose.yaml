@@ -16,6 +16,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    # Se o frontend precisar acessar o backend localmente,
+    # você pode usar o endereço da sua máquina.
+    # Em um ambiente Docker, para acessar a máquina host,
+    # pode ser necessário usar endereços especiais dependendo da rede Docker.
+    # Para desenvolvimento local, 'localhost' da sua máquina geralmente funciona.
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:8080/api
+    depends_on:
+      - postgres # O frontend pode depender do banco estar rodando (indiretamente pelo backend)
 
 volumes:
   postgres_data:
