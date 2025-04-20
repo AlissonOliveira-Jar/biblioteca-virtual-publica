@@ -20,6 +20,8 @@ function CadastroScreen() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const navigate = useNavigate();
 
   // Use a variável de ambiente definida no Docker Compose
@@ -28,6 +30,9 @@ function CadastroScreen() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    setPasswordError('');
+
     try {
       const response = await axios.post(registerEndpoint, {
         'name': nome,
@@ -35,36 +40,51 @@ function CadastroScreen() {
         'password': senha,
       });
       console.log('Resposta do cadastro:', response.data);
+
       if (response.status === 201) {
         alert('Cadastro realizado com sucesso! Você será redirecionado para o login.');
         navigate('/login');
       } else {
          alert('Cadastro bem-sucedido (resposta inesperada): ' + JSON.stringify(response.data));
       }
+
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-      let errorMessage = 'Erro ao cadastrar. Tente novamente.';
+
+      let alertMessage = 'Ocorreu um erro ao cadastrar.';
+      
       if (error.response) {
         console.error('Dados do erro:', error.response.data);
         console.error('Status do erro:', error.response.status);
         console.error('Headers do erro:', error.response.headers);
-        if (error.response.data && error.response.data.message) {
-             errorMessage = 'Erro ao cadastrar: ' + error.response.data.message;
-        } else {
-             errorMessage = 'Erro ao cadastrar: Status ' + error.response.status;
+        
+        if (error.response.status === 400 && error.response.data && error.response.data.details) {
+          const details = error.response.data.details;
+
+          if (details.password) {
+            setPasswordError(details.password);
+            alertMessage = 'Por favor, corrija os erros nos campos marcados.';
+          }
         }
-      } else if (error.request) {
-        // A requisição foi feita, mas nenhuma resposta foi recebida
-        console.error('Erro na requisição:', error.request);
-        errorMessage = 'Erro de conexão. Verifique sua internet ou tente mais tarde.';
-      } else {
-        // Algo aconteceu na configuração da requisição que desencadeou um erro
-        console.error('Erro de configuração:', error.message);
-        errorMessage = 'Ocorreu um erro inesperado. Detalhes: ' + error.message;
-      }
-      alert(errorMessage);
-    }
-  };
+
+        if (error.response.data && error.response.data.message && !(error.response.status === 400 && error.response.data.details)) {
+          alertMessage = 'Erro: ' + error.response.data.message;
+          } else if (error.response.status && !(error.response.status === 400 && error.response.data.details)) {
+            alertMessage = 'Erro: Status ' + error.response.status;
+          } else if (!(error.response.status === 400 && error.response.data.details)){
+            alertMessage = 'Erro desconhecido na resposta do servidor.';
+          }
+        
+        } else if (error.request) {
+          console.error('Erro na requisição:', error.request);
+          alertMessage = 'Erro de conexão. Verifique sua internet ou tente mais tarde.';
+          } else {
+            console.error('Erro de configuração:', error.message);
+            alertMessage = 'Ocorreu um erro inesperado. Detalhes: ' + error.message;
+          }
+            alert(alertMessage);
+          }
+      };
 
   return (
     <AuthContainer>
@@ -104,9 +124,17 @@ function CadastroScreen() {
             type="password"
             id="senha"
             value={senha}
-            onChange={(e) => setSenha(e.target.value)}
+            onChange={(e) => {
+              setSenha(e.target.value);
+              setPasswordError('');
+            }}
             required
           />
+          {passwordError && (
+            <p style={{ color: 'red', fontSize: '0.8em', marginTop: '0.2em' }}>
+              {passwordError}
+            </p>
+          )}
         </CampoContainer>
         <AuthBotao type="submit">Cadastrar</AuthBotao>
         <LinkContainer>

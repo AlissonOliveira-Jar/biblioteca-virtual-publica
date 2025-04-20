@@ -1,4 +1,3 @@
-// frontend/src/pages/LoginScreen.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -21,28 +20,23 @@ function LoginScreen() {
   const [senha, setSenha] = useState('');
   const navigate = useNavigate();
 
-  // Use a variável de ambiente
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-  const loginEndpoint = `${apiBaseUrl}/auth/login`; // Ajuste o endpoint de login se for diferente
+  const loginEndpoint = `${apiBaseUrl}/auth/login`;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      // Assumindo que seu endpoint de login espera email e senha e retorna um token/dados do usuário
       const response = await axios.post(loginEndpoint, {
-        email,
-        senha,
+        email: email,
+        password: senha,
       });
       console.log('Resposta do login:', response.data);
 
-      // Lógica para lidar com login bem-sucedido
-      if (response.status === 200) { // Assumindo status 200 para sucesso no login
-         // Ex: Armazenar token JWT ou dados do usuário
-         // localStorage.setItem('token', response.data.token);
-         // localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (response.status === 200) {
+        localStorage.setItem('token', response.data.token);
 
-         alert('Login bem-sucedido!');
-         navigate('/dashboard'); // Redirecione para a página inicial após login
+        alert('Login bem-sucedido!');
+        navigate('/dashboard');
       } else {
           alert('Login bem-sucedido (resposta inesperada): ' + JSON.stringify(response.data));
       }
