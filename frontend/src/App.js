@@ -1,21 +1,31 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthScreen from './pages/AuthScreen';
+import { Routes, Route } from 'react-router-dom';
 import CadastroScreen from './pages/CadastroScreen';
 import LoginScreen from './pages/LoginScreen';
-import Home from './pages/Home'; // Importe a Home, se ainda não estiver
+import LandingScreen from './pages/LandingScreen';
+import { GlobalAuthStyles } from './styles/AuthStyles';
 
 function App() {
   return (
-    <Router>
+    <>
+      {/* Renderiza os estilos globais que incluem o reset de CSS e a fonte */}
+      <GlobalAuthStyles />
       <Routes>
-        <Route path="/" element={<Home />} /> {/* Rota para a página inicial */}
-        <Route path="/auth" element={<AuthScreen />} /> {/* Tela com botões Login/Cadastro */}
-        <Route path="/cadastro" element={<CadastroScreen />} />
+        {/* Rota para a tela de login */}
         <Route path="/login" element={<LoginScreen />} />
-        {/* Podemos adicionar uma rota para "Esqueci a senha" posteriormente */}
+        {/* Rota para a tela de cadastro */}
+        <Route path="/cadastro" element={<CadastroScreen />} />
+
+        {/* Rota para a página inicial (landing page) */}
+        {/* CORRIGIDO: Agora renderiza o LandingScreen */}
+        <Route path="/" element={<LandingScreen />} />
+
+        {/* Opcional: Adicionar uma rota coringa para lidar com URLs inválidas */}
+        {/* import { Navigate } from 'react-router-dom'; */}
+        {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+
       </Routes>
-    </Router>
+    </>
   );
 }
 

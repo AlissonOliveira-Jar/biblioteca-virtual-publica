@@ -5,6 +5,8 @@ Ele fornece um sistema completo de cadastro, login e de usuário bem como esquec
 Operações CRUD para: User, Livro, Artigo, Autor e Editora.
 mas para certas operações dependerá da sua role, se você é um User, Bibliotecario ou Administrador.
 
+Tanto o backend e o frontend possuem os seus próprios Dockerfile e estão a ser orquestrados pelo compose.yaml
+
 ## Pré-requisitos:
 
 * **Java 21** (Utilizando Liberica JDK)
