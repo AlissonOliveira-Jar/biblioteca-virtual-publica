@@ -28,12 +28,11 @@ function CadastroScreen() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('API Base URL Lida:', process.env.REACT_APP_API_BASE_URL);
     try {
       const response = await axios.post(registerEndpoint, {
-        nome,
-        email,
-        senha,
+        'name': nome,
+        'email': email,
+        'password': senha,
       });
       console.log('Resposta do cadastro:', response.data);
       if (response.status === 201) {
