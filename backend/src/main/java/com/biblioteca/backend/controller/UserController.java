@@ -94,7 +94,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Obter nomes de todos os utilizadores",
-            description = "Retorna uma lista contendo apenas os nomes de todos os utilizadores registados. Requer autenticação com papel USER.", // *** NOVO: Descrição detalhada ***
+            description = "Retorna uma lista contendo apenas os nomes de todos os utilizadores registados. Requer autenticação com papel USER.",
             security = @SecurityRequirement(name = "bearerAuth"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista de nomes retornada com sucesso",
