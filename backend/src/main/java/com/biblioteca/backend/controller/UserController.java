@@ -157,17 +157,16 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
     @Operation(
-            summary = "Excluir utilizador por ID", // *** NOVO: Sumário da operação ***
-            description = "Exclui um utilizador específico pelo seu ID. Requer autenticação. O utilizador deve ser o próprio ou ter papel ADMIN.", // *** NOVO: Descrição detalhada ***
-            security = @SecurityRequirement(name = "bearerAuth"), // *** NOVO: Requer autenticação ***
-            responses = { // *** NOVO: Definição das possíveis respostas ***
-                    @ApiResponse(responseCode = "204", description = "Utilizador excluído com sucesso"), // Resposta 204 (Sem Conteúdo)
+            summary = "Excluir utilizador por ID",
+            description = "Exclui um utilizador específico pelo seu ID. Requer autenticação. O utilizador deve ser o próprio ou ter papel ADMIN.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Utilizador excluído com sucesso"),
                     @ApiResponse(responseCode = "401", description = "Não autenticado"),
                     @ApiResponse(responseCode = "403", description = "Sem permissão (não é o próprio utilizador ou não é ADMIN)"),
                     @ApiResponse(responseCode = "404", description = "Utilizador não encontrado")
             }
     )
-    // *** NOVO: Adicionar Parameter anotação para o path variable ***
     public ResponseEntity<Void> deleteUser(@Parameter(description = "ID do utilizador (UUID)", example = "a1b2c3d4-e5f6-7890-1234-567890abcdef") @PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
