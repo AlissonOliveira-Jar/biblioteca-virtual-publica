@@ -35,7 +35,7 @@ public class EditoraController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('BIBLIOTECARIO', 'USER')")
+    @PreAuthorize("hasAnyRole('BIBLIOTECARIO', 'USER')")
     public ResponseEntity<List<EditoraDTO>> getAllEditoras(@RequestParam(value = "nome", required = false) String nome) {
         List<EditoraDTO> editoras;
         if (nome != null && !nome.trim().isEmpty()) {
