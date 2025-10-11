@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
+
 @Service
 
 public class Oauth2UserService extends DefaultOAuth2UserService {
@@ -27,6 +29,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
 
         String email = user.getAttribute("email");
         String name = user.getAttribute("name");
+        Optional<User> existingUser = userRepository.findByEmail(email);
         userRepository.findByEmail(email).orElseGet(() ->{
             User newUser = new User();
             newUser.setEmail(email);
