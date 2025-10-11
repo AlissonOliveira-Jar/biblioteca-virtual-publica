@@ -43,34 +43,34 @@ const RegisterPage = () => {
         <div className="flex-grow flex items-center justify-center">
             <Form.Root 
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-96 bg-white p-4 rounded-md border border-slate-300"
+                className="w-96 bg-zinc-800 p-6 rounded-lg border border-zinc-700 shadow-2xl shadow-primary/20"
                 noValidate
             >
-                <h1 className="text-2xl font-bold text-center mb-4">Crie sua Conta</h1>
+                <h1 className="text-2xl font-bold text-center mb-4 text-gray-100">Crie sua Conta</h1>
 
                 <Form.Field name="name" className="flex flex-col gap-2 mb-2">
-                    <Form.Label>Nome:</Form.Label>
+                    <Form.Label className="text-gray-400">Nome:</Form.Label>
                     <Form.Control asChild>
                         <input 
                             type="text" 
                             id="name" 
                             placeholder="Digite o seu nome completo" 
                             {...register("name")}
-                            className="h-10 pl-2 rounded-md border border-slate-300"
+                            className="h-10 pl-3 bg-zinc-900 text-white rounded-md border border-zinc-700 focus:border-primary focus:ring-1 focus:ring-primary"
                         />
                     </Form.Control>
                     {errors.name && (<small className="text-red-500 italic">{errors.name.message}</small>)}
                 </Form.Field>
 
                 <Form.Field name="email" className="flex flex-col gap-2 mb-2">
-                    <Form.Label>E-mail:</Form.Label>
+                    <Form.Label className="text-gray-400">E-mail:</Form.Label>
                     <Form.Control asChild>
                         <input 
                             type="email" 
                             id="email" 
                             placeholder="Digite o seu e-mail" 
                             {...register("email")}
-                            className="h-10 pl-2 rounded-md border border-slate-300"
+                            className="h-10 pl-3 bg-zinc-900 text-white rounded-md border border-zinc-700 focus:border-primary focus:ring-1 focus:ring-primary"
                         />
                     </Form.Control>
                     {errors.email && (<small className="text-red-500 italic">{errors.email.message}</small>)}
@@ -99,7 +99,7 @@ const RegisterPage = () => {
                         <Form.Control asChild>
                             <input type="checkbox" id="agreeToTerms" {...register("agreeToTerms")} />
                         </Form.Control>
-                        <Form.Label htmlFor="agreeToTerms">Eu li e aceito os termos e condições.</Form.Label>
+                        <Form.Label htmlFor="agreeToTerms" className="text-gray-400">Eu li e aceito os termos e condições.</Form.Label>
                     </div>
                     {errors.agreeToTerms && (<small className="text-red-500 italic">{errors.agreeToTerms.message}</small>)}
                 </Form.Field>
@@ -111,16 +111,22 @@ const RegisterPage = () => {
                         type="submit" 
                         disabled={isLoading}
                         className="w-full h-11 rounded-md my-2 text-white font-bold
-                                bg-gradient-to-r from-blue-600 to-violet-600 
-                                hover:scale-105 hover:shadow-lg hover:shadow-violet-500/50 
-                                transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                   bg-gradient-to-r from-primary via-violet-500 to-primary 
+                                   bg-[size:200%_auto]
+                                   animate-gradient-flow
+                                   transition-transform duration-300 ease-in-out
+                                   hover:scale-105
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Enviando...' : 'Cadastrar'}
                     </button>
                 </Form.Submit>
 
                 <div className="text-center mt-4">
-                    <Link to="/login" className="text-blue-600 hover:underline">
+                    <Link 
+                        to="/login" 
+                        className="text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                    >
                         Já tem uma conta? Faça login
                     </Link>
                 </div>

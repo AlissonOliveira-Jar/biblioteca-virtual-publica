@@ -8,7 +8,7 @@ import LoginPage from './pages/LoginPage';
 
 const MainLayout = () => {
   return (
-    <div className="bg-zinc-100 flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen"> 
       <Navbar />
       <main className="flex-grow container mx-auto p-4 flex flex-col">
         <Outlet />
@@ -17,6 +17,7 @@ const MainLayout = () => {
     </div>
   );
 };
+
 
 function App() {
   return (
