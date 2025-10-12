@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:latest
@@ -17,6 +19,39 @@ services:
       timeout: 5s
       retries: 5
 
+  ### NOVO: SERVIÇO ZOOKEEPER (DEPENDÊNCIA DO KAFKA) ###
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.3
+    container_name: zookeeper_biblioteca
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  ### NOVO: SERVIÇO KAFKA (BROKER DE MENSAGENS) ###
+  kafka:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka_biblioteca
+    depends_on:
+      - zookeeper
+    ports:
+      # Porta para acesso EXTERNO (da sua máquina, para debug)
+      - "29092:29092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      # Permite a comunicação de dentro e de fora do Docker
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
   backend:
     build:
       context: ./backend
@@ -27,20 +62,27 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_biblioteca:5432/biblioteca
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=biblioteca_virtual
+      ### NOVO: VARIÁVEL DE AMBIENTE PARA CONECTAR AO KAFKA ###
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - TZ=America/Sao_Paulo
+    ### ATUALIZADO: AGORA O BACKEND TAMBÉM DEPENDE DO KAFKA ###
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
 
   frontend:
     build: ./frontend
     container_name: frontend_biblioteca
     ports:
       - "3000:80"
-    environment:
-      - REACT_APP_API_BASE_URL=http://backend_biblioteca:8080/api
     depends_on:
       - backend
 
+### NOVO: VOLUMES PARA KAFKA E ZOOKEEPER ###
 volumes:
   postgres_data:
-  
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
