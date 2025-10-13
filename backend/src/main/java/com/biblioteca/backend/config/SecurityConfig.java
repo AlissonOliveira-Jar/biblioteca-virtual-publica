@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "api/auth/**",
+                                "/api/auth/**",
                                 "/api/users",
                                 "/api/auth/login",
                                 "/api/auth/esqueci-senha",
@@ -56,6 +56,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/kafka/**")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
