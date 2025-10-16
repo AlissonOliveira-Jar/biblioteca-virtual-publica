@@ -111,12 +111,9 @@ const RegisterPage = () => {
                         type="submit" 
                         disabled={isLoading}
                         className="w-full h-11 rounded-md my-2 text-white font-bold
-                                   bg-gradient-to-r from-primary via-violet-500 to-primary 
-                                   bg-[size:200%_auto]
-                                   animate-gradient-flow
-                                   transition-transform duration-300 ease-in-out
-                                   hover:scale-105
-                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        bg-gradient-to-r from-purple-900 to-violet-500 
+                        hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
+                        transition-all duration-500 cursor-pointer"
                     >
                         {isLoading ? 'Enviando...' : 'Cadastrar'}
                     </button>

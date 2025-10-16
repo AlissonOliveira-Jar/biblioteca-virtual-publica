@@ -77,8 +77,9 @@ const LoginPage = () => {
             type="submit" 
             disabled={isLoading}
             className="w-full h-11 rounded-md my-2 text-white font-bold
-                       bg-gradient-to-r from-primary to-violet-500 
-                       hover:animate-breathe disabled:opacity-50 disabled:cursor-not-allowed"
+                       bg-gradient-to-r from-purple-900 to-violet-500 
+                       hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
+                       transition-all duration-500 cursor-pointer"
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </button>

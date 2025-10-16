@@ -11,17 +11,17 @@ const Navbar = () => {
           <Link 
             to="/login" 
             className="px-4 py-2 text-primary border border-primary rounded-md 
-                       hover:bg-primary hover:text-white 
-                       transition-all duration-300 hover:scale-105"
+                       cursor-pointer hover:shadow-lg hover:shadow-gray-500/20 hover:text-white 
+                       transition-all duration-500 hover:scale-105"
           >
             Entrar
           </Link>
           <Link 
             to="/register" 
-            className="px-4 py-2 text-white font-bold 
-                       bg-gradient-to-r from-primary via-violet-500 to-primary 
-                       bg-[size:200%_auto] animate-gradient-flow rounded-md 
-                       hover:scale-105 transition-transform"
+            className="px-4 py-2 border border-none rounded-md text-white font-bold
+                        bg-gradient-to-r from-purple-900 to-violet-500
+                        hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
+                        transition-all duration-500 cursor-pointer"
           >
             Cadastrar
           </Link>
