@@ -35,7 +35,6 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
           </button>
         </div>
-        <Form.Message className="text-red-500 italic" />
       </Form.Field>
     );
   }
