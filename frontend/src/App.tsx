@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HomePage from './pages/HomePage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const MainLayout = () => {
   return (
@@ -27,7 +28,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/home" element={<HomePage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<HomePage />} />
+        </Route>
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>
