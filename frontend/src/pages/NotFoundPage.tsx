@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { useAuth } from '../hooks/useAuth';
 
 const NotFoundPage = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <section className="text-center py-20 flex flex-col items-center">
       <FaExclamationTriangle className="text-yellow-400 text-6xl mb-4" />
@@ -16,7 +19,7 @@ const NotFoundPage = () => {
       
       <div className="flex items-center">
           <Link 
-            to="/" 
+            to={isAuthenticated ? '/home' : '/'} 
             className="px-8 py-3 text-lg font-bold text-white bg-gradient-to-r from-purple-900 to-violet-500 
                       rounded-lg hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
                       transition-all duration-500 cursor-pointer"

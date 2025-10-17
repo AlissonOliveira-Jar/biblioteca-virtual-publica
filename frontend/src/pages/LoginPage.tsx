@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import * as Form from '@radix-ui/react-form';
+import toast from 'react-hot-toast';
 import { useLoginUserForm } from "../hooks/loginUserHook";
 import type { LoginUserSchema } from "../schemas/loginUserSchema";
 import PasswordInput from '../components/PasswordInput';
+import { useAuth } from '../hooks/useAuth';
 
 const LoginPage = () => {
   const { register, handleSubmit, errors } = useLoginUserForm();
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const onSubmit = async (data: LoginUserSchema) => {
     setIsLoading(true);
@@ -18,15 +21,19 @@ const LoginPage = () => {
     try {
       const response = await axios.post('/api/auth/login', data);
       const token = response.data.token;
-      localStorage.setItem('authToken', token);
-      alert('Login efetuado com sucesso!');
-      window.location.href = '/dashboard';
+      
+      login(token);
+      toast.success('Login efetuado com sucesso!');
 
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        setApiError(error.response.data.message || 'Credenciais inválidas.');
+        const errorMessage = error.response.data.message || 'Credenciais inválidas.';
+        setApiError(errorMessage);
+        toast.error(errorMessage);
       } else {
-        setApiError('Não foi possível conectar ao servidor.');
+        const serverErrorMessage = 'Não foi possível conectar ao servidor.';
+        setApiError(serverErrorMessage);
+        toast.error(serverErrorMessage);
       }
     } finally {
       setIsLoading(false);
