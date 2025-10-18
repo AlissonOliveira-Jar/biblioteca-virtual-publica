@@ -172,4 +172,8 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+# Drive Secrets
+.env
+
+google-drive-credentials.json
 # End of https://www.toptal.com/developers/gitignore/api/node
