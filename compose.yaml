@@ -23,11 +23,16 @@ services:
     container_name: backend_biblioteca
     ports:
       - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./google-drive-credentials.json:/app/credentials.json
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/biblioteca
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=biblioteca_virtual
       - TZ=America/Sao_Paulo
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
     depends_on:
       postgres:
         condition: service_healthy

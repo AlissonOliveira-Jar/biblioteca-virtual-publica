@@ -21,6 +21,9 @@ public class IntegracaoDriveService {
     @Value("${GOOGLE_DRIVE_ACCESS_TOKEN}")
     private String accessToken;
 
+    @Value("${google.drive.folder.id}")
+    private String livrosId;
+
     private final WebClient webClient = WebClient.create("https://www.googleapis.com/drive/v3");
 
     public List<Map<String, Object>> listarLivros() {
