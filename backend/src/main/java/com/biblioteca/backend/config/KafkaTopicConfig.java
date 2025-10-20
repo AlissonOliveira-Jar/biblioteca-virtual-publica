@@ -9,8 +9,8 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Bean
-    public NewTopic meuPrimeiroTopico() {
-        return TopicBuilder.name("meu-primeiro-topico")
+    public NewTopic chatTopic() {
+        return TopicBuilder.name("chat-messages")
                 .partitions(1)
                 .replicas(1)
                 .build();
