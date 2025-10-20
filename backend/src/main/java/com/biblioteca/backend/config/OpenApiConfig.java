@@ -1,36 +1,43 @@
 package com.biblioteca.backend.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
+
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-
 @Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "API da Biblioteca Virtual Pública",
+                version = "v1.1.0",
+                description = "Documentação da API backend para gerenciar a biblioteca.",
+                contact = @Contact(
+                        name = "Alisson Oliveira",
+                        email = "alisson.dev.py@gmail.com",
+                        url = "https://github.com/AlissonOliveira-Jar"
+                ),
+                license = @License(
+                        name = "Apache 2.0",
+                        url = "http://springdoc.org"
+                )
+        ),
+        servers = @Server(
+                url = "http://localhost:8080",
+                description = "Servidor de Desenvolvimento"
+        )
+)
+
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        description = "Forneça o token JWT no cabeçalho 'Authorization': `Bearer <token>`"
+)
 public class OpenApiConfig {
-
-    @Bean
-    public OpenAPI myAPI() {
-        Server devServer = new Server();
-        devServer.setUrl("http://localhost:8080");
-        devServer.setDescription("Servidor de Desenvolvimento");
-
-        Contact contact = new Contact();
-        contact.setEmail("alisson.dev.py@gmail.com");
-        contact.setName("Alisson Oliveira");
-        contact.setUrl("https://github.com/AlissonOliveira-Jar");
-
-        Info info = new Info()
-                .title("API Biblioteca Virtual Pública")
-                .version("v1.0")
-                .description("Esta é a API para gerenciar a biblioteca.")
-                .contact(contact)
-                .license(new io.swagger.v3.oas.models.info.License().name("Apache 2.0").url("http://springdoc.org"));
-
-        return new OpenAPI().info(info).servers(List.of(devServer));
-    }
-
 }

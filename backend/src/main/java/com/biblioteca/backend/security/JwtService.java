@@ -26,6 +26,7 @@ public class JwtService {
                 .issuer("biblioteca-backend")
                 .subject(user.getId().toString())
                 .claim("roles", user.getRoles())
+                .claim("name", user.getName())
                 .issuedAt(now)
                 .expiresAt(now.plus(EXPIRATION_HOURS, ChronoUnit.HOURS))
                 .build();

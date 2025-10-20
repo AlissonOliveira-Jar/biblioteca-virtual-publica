@@ -58,19 +58,24 @@ services:
       retries: 5
       start_period: 10s
 
-  backend:
+  backend_biblioteca:
     build:
       context: ./backend
     container_name: backend_biblioteca
     ports:
       - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./google-drive-credentials.json:/app/credentials.json
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_biblioteca:5432/biblioteca
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/biblioteca
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=biblioteca_virtual
       ### NOVO: VARIÁVEL DE AMBIENTE PARA CONECTAR AO KAFKA ###
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - TZ=America/Sao_Paulo
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
     ### ATUALIZADO: AGORA O BACKEND TAMBÉM DEPENDE DO KAFKA ###
     depends_on:
       postgres:
@@ -78,13 +83,13 @@ services:
       kafka:
         condition: service_healthy
 
-  frontend:
+  frontend_biblioteca:
     build: ./frontend
     container_name: frontend_biblioteca
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      - backend_biblioteca
 
 ### NOVO: VOLUMES PARA KAFKA E ZOOKEEPER ###
 volumes:
