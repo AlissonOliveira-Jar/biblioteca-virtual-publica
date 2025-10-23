@@ -39,16 +39,4 @@ public class LivroDetalhesController {
                     .body(Map.of("erro", "Erro interno do servidor ao processar a busca."));
         }
     }
-
-    /*@GetMapping("/download")
-    public ResponseEntity<byte[]> downloadPDF(@RequestParam(required = false) String pdfUrl, @RequestParam String titulo){
-        byte[] pdf = livroDetalhesService.downloadPdf(pdfUrl,titulo);
-        if (pdf == null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" +titulo.replace(" ", "_")+ " .pdf\"")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }*/
 }
