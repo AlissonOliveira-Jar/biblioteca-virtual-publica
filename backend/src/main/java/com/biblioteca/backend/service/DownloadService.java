@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class DownloadService {
     private final DownloadDriveService downloadDriveService;
-    /*private final GoogleBooksAPIService googleBooksAPIService;*/
     private final LivroDetalhesService livroDetalhesService;
 
     public byte[] baixarLivro(String titulo, String fileId) {
@@ -35,27 +34,6 @@ public class DownloadService {
                 return null;
             }
         }
-        /*try {
-            Map<String, Object> detalhes = livroDetalhesService.buscarDetalhesLivro(titulo);
-            String pdfUrl = (String) detalhes.get("Pdf_Link_Google");
-
-            if (pdfUrl != null && !pdfUrl.isEmpty()) {
-                log.info("Link de download encontrado no Books. Tentando baixar...");
-
-                byte[] conteudoBooks = googleBooksAPIService.downloadPdf(pdfUrl);
-
-                if (conteudoBooks != null) {
-                    log.info("Download bem-sucedido via Books.");
-                    return conteudoBooks; // SUCESSO via Books
-                } else {
-                    log.warn("Download via Books falhou. Tentando via Drive...");
-                }
-            } else {
-                log.warn("'Pdf_Link_Google' não encontrado. Tentando via Drive...");
-            }
-        } catch (Exception e) {
-            log.warn("Erro ao processar busca de link no Google Books, prosseguindo via Drive. Erro:{}", e.getMessage());
-        }*/
             log.info("Tentando Download via Google Drive com fileId: {}", finalFileId);
 
             byte[] conteudoDrive = downloadDriveService.baixarArquivo(finalFileId);
