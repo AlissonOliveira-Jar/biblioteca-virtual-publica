@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:18
     container_name: postgres_biblioteca
     environment:
       POSTGRES_USER: postgres
@@ -12,14 +10,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  ### NOVO: SERVIÇO ZOOKEEPER (DEPENDÊNCIA DO KAFKA) ###
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.3
     container_name: zookeeper_biblioteca
@@ -32,21 +29,18 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  ### NOVO: SERVIÇO KAFKA (BROKER DE MENSAGENS) ###
   kafka:
     image: confluentinc/cp-kafka:7.5.3
     container_name: kafka_biblioteca
     depends_on:
       - zookeeper
     ports:
-      # Porta para acesso EXTERNO (da sua máquina, para debug)
       - "29092:29092"
     volumes:
       - kafka_data:/var/lib/kafka/data
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      # Permite a comunicação de dentro e de fora do Docker
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -72,11 +66,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/biblioteca
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=biblioteca_virtual
-      ### NOVO: VARIÁVEL DE AMBIENTE PARA CONECTAR AO KAFKA ###
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - TZ=America/Sao_Paulo
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
-    ### ATUALIZADO: AGORA O BACKEND TAMBÉM DEPENDE DO KAFKA ###
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,7 +83,6 @@ services:
     depends_on:
       - backend_biblioteca
 
-### NOVO: VOLUMES PARA KAFKA E ZOOKEEPER ###
 volumes:
   postgres_data:
   zookeeper_data:
