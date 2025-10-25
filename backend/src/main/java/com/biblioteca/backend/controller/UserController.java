@@ -3,6 +3,7 @@ package com.biblioteca.backend.controller;
 import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
+import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -54,12 +55,12 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
-    public ResponseEntity<UserDTO> updateUser(
+    public ResponseEntity<UserUpdateResponseDTO> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UserUpdateDTO dto
     ) {
-        UserDTO updatedUser = userService.updateUser(id, dto);
-        return ResponseEntity.ok(updatedUser);
+        UserUpdateResponseDTO response = userService.updateUser(id, dto);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/roles")

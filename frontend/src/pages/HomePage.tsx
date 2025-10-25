@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { FaSearch, FaBook, FaCompass, FaUser } from 'react-icons/fa';
+import { FaSearch, FaBook, FaCompass, FaUser, FaCog } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
-  const { userName } = useAuth(); 
+  const { userName, roles } = useAuth();
+
+  const isAdmin = roles.includes('ADMIN');
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
@@ -29,7 +31,8 @@ const HomePage = () => {
 
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
+
+          {/* Card: Minha Estante */}
           <Link to="/my-books" className="group block">
             <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
               <FaBook className="text-4xl text-primary mb-4" />
@@ -40,6 +43,7 @@ const HomePage = () => {
             </div>
           </Link>
 
+          {/* Card: Descobrir Livros */}
           <Link to="/discover" className="group block">
             <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
               <FaCompass className="text-4xl text-primary mb-4" />
@@ -50,6 +54,7 @@ const HomePage = () => {
             </div>
           </Link>
 
+          {/* Card: Meu Perfil */}
           <Link to="/profile" className="group block">
             <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
               <FaUser className="text-4xl text-primary mb-4" />
@@ -59,6 +64,19 @@ const HomePage = () => {
               </p>
             </div>
           </Link>
+
+          {/* 4. === CARD DE ADMIN (Renderização Condicional) === */}
+          {isAdmin && (
+            <Link to="/admin" className="group block">
+              <div className="p-6 bg-zinc-800 rounded-lg border border-yellow-500 hover:border-yellow-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                <FaCog className="text-4xl text-yellow-500 mb-4" />
+                <h2 className="text-2xl font-bold text-gray-100 mb-2">Administração</h2>
+                <p className="text-gray-400">
+                  Gerenciar usuários e configurações do sistema.
+                </p>
+              </div>
+            </Link>
+          )}
 
         </div>
       </main>

@@ -8,6 +8,11 @@ import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProfilePage from './pages/ProfilePage';
+import ForbiddenPage from './pages/ForbiddenPage';
+import ServerErrorPage from './pages/ServerErrorPage';
+import AdminRoute from './components/AdminRoute';
+import AdminPage from './pages/AdminPage';
 
 const MainLayout = () => {
   return (
@@ -29,8 +34,16 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
+        <Route path="/forbidden" element={<ForbiddenPage />} />
+        <Route path="/server-error" element={<ServerErrorPage />} />
+
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
