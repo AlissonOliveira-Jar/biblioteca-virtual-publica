@@ -2,6 +2,7 @@ package com.biblioteca.backend.controller;
 
 import com.biblioteca.backend.dto.request.*;
 import com.biblioteca.backend.dto.response.JwtResponse;
+import com.biblioteca.backend.dto.request.VerifyPasswordDTO;
 import com.biblioteca.backend.exception.TokenInvalidoException;
 import com.biblioteca.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,6 +39,13 @@ public class AuthController {
     @PostMapping("/esqueci-senha")
     public ResponseEntity<Void> esqueciSenha(@Valid @RequestBody EsqueciSenhaDTO dto) {
         authService.iniciarRedefinicaoSenha(dto.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> verifyPassword(@Valid @RequestBody VerifyPasswordDTO dto) {
+        authService.verifyCurrentUserPassword(dto);
         return ResponseEntity.ok().build();
     }
 

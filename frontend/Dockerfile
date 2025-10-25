@@ -1,5 +1,5 @@
 # Stage 0: Build the React application
-FROM node:22.20.0-alpine AS builder
+FROM node:22.21.0-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm cache clean --force
