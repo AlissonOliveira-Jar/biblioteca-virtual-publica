@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { FaSearch, FaBook, FaCompass, FaUser, FaCog } from 'react-icons/fa';
+import { FaSearch, FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNewspaper, FaBookOpen } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
   const { userName, roles } = useAuth();
-
   const isAdmin = roles.includes('ADMIN');
+  const isBibliotecario = roles.includes('BIBLIOTECARIO');
+  const canManageAcervo = isAdmin || isBibliotecario;
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
@@ -65,7 +66,59 @@ const HomePage = () => {
             </div>
           </Link>
 
-          {/* 4. === CARD DE ADMIN (Renderização Condicional) === */}
+          {/* Card: Gerenciar Autores */}
+          {canManageAcervo && (
+            <Link to="/autores" className="group block">
+              <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                <FaUserTie className="text-4xl text-blue-500 mb-4" />
+                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Autores</h2>
+                <p className="text-gray-400">
+                  Adicionar, editar ou remover autores do sistema.
+                </p>
+              </div>
+            </Link>
+          )}
+
+          {/* Card: Gerenciar Editoras */}
+          {canManageAcervo && (
+            <Link to="/editoras" className="group block">
+              <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                <FaBuilding className="text-4xl text-blue-500 mb-4" />
+                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Editoras</h2>
+                <p className="text-gray-400">
+                  Adicionar, editar ou remover editoras do sistema.
+                </p>
+              </div>
+            </Link>
+          )}
+
+          {/* Card: Gerenciar Artigos */}
+          {canManageAcervo && (
+            <Link to="/artigos" className="group block">
+              <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                <FaNewspaper className="text-4xl text-blue-500 mb-4" />
+                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Artigos</h2>
+                <p className="text-gray-400">
+                  Adicionar, editar ou remover artigos científicos.
+                </p>
+              </div>
+            </Link>
+          )}
+
+          {/* Card: Gerenciar Livros */}
+          {canManageAcervo && (
+            <Link to="/livros" className="group block">
+              <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                <FaBookOpen className="text-4xl text-blue-500 mb-4" />
+                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Livros</h2>
+                <p className="text-gray-400">
+                  Adicionar, editar ou remover livros.
+                </p>
+              </div>
+            </Link>
+          )}
+
+          {/* Card: de Administração */}
           {isAdmin && (
             <Link to="/admin" className="group block">
               <div className="p-6 bg-zinc-800 rounded-lg border border-yellow-500 hover:border-yellow-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
