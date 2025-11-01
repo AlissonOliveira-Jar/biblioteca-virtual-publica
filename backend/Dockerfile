@@ -10,6 +10,9 @@ RUN mvn clean install -DskipTests
 # Etapa de Execução
 FROM eclipse-temurin:21-jre-alpine
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 COPY --from=build /app/target/backend-1.1.0.jar /app/app.jar
 
 WORKDIR /app

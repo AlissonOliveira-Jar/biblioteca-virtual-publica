@@ -1,0 +1,99 @@
+name: 🛡️ Pipeline de Segurança (Trivy & NPM)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # (Procura segredos, 'pom.xml', 'package-lock.json', e Dockerfiles)
+  filesystem-scan:
+    name: Scan de Arquivos (Trivy FS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Roda Trivy FS
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'             # Escaneia o sistema de arquivos
+          scan-ref: '.'               # Escaneia o diretório raiz
+          scanners: 'vuln,secret,misconfig' # Procura vulnerabilidades, segredos e más configs
+          exit-code: '1'            # Falha o job se encontrar algo
+          severity: 'HIGH,CRITICAL' # Falha apenas se for HIGH ou CRITICAL
+          ignore-unfixed: true      # Não falha se a vulnerabilidade não tiver correção
+
+  # Job 2: Escaneia a imagem customizada do Frontend
+  frontend-image-scan:
+    name: Scan Imagem Frontend (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Constrói a imagem Docker
+        run: docker build -t frontend:ci ./frontend
+
+      - name: Roda Trivy na Imagem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'frontend:ci'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+  # Job 3: Escaneia a imagem customizada do Backend
+  backend-image-scan:
+    name: Scan Imagem Backend (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Constrói a imagem Docker
+        # ATENÇÃO: Confirme se o Dockerfile do backend está em './backend'
+        run: docker build -t backend:ci ./backend
+
+      - name: Roda Trivy na Imagem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'backend:ci'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+  # Job 4: Escaneia as imagens de terceiros (Postgres, Kafka, etc.)
+  base-images-scan:
+    name: Scan Imagens Base (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan Postgres
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'postgres:15-alpine'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+      - name: Scan Kafka
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'confluentinc/cp-kafka:7.6.1'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+      - name: Scan Zookeeper
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'confluentinc/cp-zookeeper:7.6.1'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true

@@ -1,0 +1,24 @@
+- name: Hardening nos containers da aplicação
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Atualizar pacotes dentro dos containers
+      ansible.builtin.shell: |
+        docker compose exec -T backend apt-get update && docker compose exec -T backend apt-get upgrade -y
+      ignore_errors: true
+
+    - name: Aplicar restrições de segurança
+      ansible.builtin.shell: |
+        docker update --security-opt no-new-privileges:true --memory 1g --cpus 1 backend
+        docker update --security-opt no-new-privileges:true --memory 512m --cpus 0.5 frontend
+      ignore_errors: true
+
+    - name: Verificar se containers estão rodando como root
+      ansible.builtin.shell: |
+        docker compose exec -T backend whoami
+        docker compose exec -T frontend whoami
+      register: whoami_output
+
+    - name: Mostrar resultados
+      ansible.builtin.debug:
+        var: whoami_output.stdout_lines

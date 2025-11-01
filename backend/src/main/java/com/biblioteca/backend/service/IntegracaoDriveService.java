@@ -41,15 +41,15 @@ public class IntegracaoDriveService {
             log.info("Foram encontrados {} arquivos na pasta do Drive.", files.size());
 
             return files.stream()
-                .map(file -> {
-                    Map<String, Object> fileMap = new java.util.HashMap<>();
-                    fileMap.put("id", file.getId());
-                    fileMap.put("name", file.getName());
-                    fileMap.put("mimeType", file.getMimeType());
-                    fileMap.put("webViewLink", file.getWebViewLink());
-                    return fileMap;
-                })
-                .collect(Collectors.toList());
+                    .map(file -> {
+                        Map<String, Object> fileMap = new java.util.HashMap<>();
+                        fileMap.put("id", file.getId());
+                        fileMap.put("name", file.getName());
+                        fileMap.put("mimeType", file.getMimeType());
+                        fileMap.put("webViewLink", file.getWebViewLink());
+                        return fileMap;
+                    })
+                    .collect(Collectors.toList());
 
         } catch (IOException e) {
             log.error("Erro ao acessar o Google Drive via biblioteca cliente", e);
