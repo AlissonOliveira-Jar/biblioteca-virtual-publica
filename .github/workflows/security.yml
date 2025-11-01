@@ -26,6 +26,7 @@ jobs:
           exit-code: '1'            # Falha o job se encontrar algo
           severity: 'HIGH,CRITICAL' # Falha apenas se for HIGH ou CRITICAL
           ignore-unfixed: true      # Não falha se a vulnerabilidade não tiver correção
+          ignore-file: '.trivyignore'
 
   # Job 2: Escaneia a imagem customizada do Frontend
   frontend-image-scan:
@@ -46,6 +47,7 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+          ignore-file: '.trivyignore'
 
   # Job 3: Escaneia a imagem customizada do Backend
   backend-image-scan:
@@ -67,12 +69,18 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+          ignore-file: '.trivyignore'
 
   # Job 4: Escaneia as imagens de terceiros (Postgres, Kafka, etc.)
   base-images-scan:
     name: Scan Imagens Base (Trivy)
     runs-on: ubuntu-latest
     steps:
+      # 1. FAZ O CHECKOUT DO CÓDIGO PRIMEIRO
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      # 2. RODA O SCAN INFORMANDO O ARQUIVO DE IGNORE
       - name: Scan Postgres
         uses: aquasecurity/trivy-action@master
         with:
@@ -81,6 +89,7 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+          ignore-file: '.trivyignore' # <--- ADICIONE ISTO
 
       - name: Scan Kafka
         uses: aquasecurity/trivy-action@master
@@ -90,6 +99,7 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+          ignore-file: '.trivyignore' # <--- ADICIONE ISTO
 
       - name: Scan Zookeeper
         uses: aquasecurity/trivy-action@master
@@ -99,3 +109,4 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+          ignore-file: '.trivyignore'

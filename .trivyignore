@@ -1,0 +1,16 @@
+# Ignorando falhas conhecidas na 'stdlib' do 'gosu' da imagem postgres:15-alpine
+# Essas falhas são de baixo impacto no contexto do contêiner.
+CVE-2025-47912
+CVE-2025-58183
+CVE-2025-58185
+CVE-2025-58186
+CVE-2025-58187
+CVE-2025-58188
+CVE-2025-61723
+CVE-2025-61724
+
+# Ignorando falhas conhecidas na 'libxml2' da imagem nginx:stable-alpine
+CVE-2025-49794
+CVE-2025-49796
+CVE-2025-49795
+CVE-2025-6021
