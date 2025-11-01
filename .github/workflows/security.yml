@@ -2,7 +2,9 @@ name: 🛡️ Pipeline de Segurança (Trivy & NPM)
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "feature/security-misconfiguration"
   pull_request:
     branches: [ "main" ]
 
