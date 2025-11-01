@@ -7,6 +7,10 @@ import { useLoginUserForm } from "../hooks/loginUserHook";
 import type { LoginUserSchema } from "../schemas/loginUserSchema";
 import PasswordInput from '../components/PasswordInput';
 import { useAuth } from '../hooks/useAuth';
+import { FaGoogle } from 'react-icons/fa';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+
 
 const LoginPage = () => {
   const { register, handleSubmit, errors } = useLoginUserForm();
@@ -19,7 +23,7 @@ const LoginPage = () => {
     setApiError(null);
 
     try {
-      const response = await axios.post('/api/auth/login', data);
+      const response = await axios.post('/api/auth/login', data); 
       const token = response.data.token;
       
       login(token);
@@ -84,15 +88,35 @@ const LoginPage = () => {
             type="submit" 
             disabled={isLoading}
             className="w-full h-11 rounded-md my-2 text-white font-bold
-                       bg-gradient-to-r from-purple-900 to-violet-500 
-                       hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
-                       transition-all duration-500 cursor-pointer"
+                      bg-gradient-to-r from-purple-900 to-violet-500 
+                      hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
+                      transition-all duration-500 cursor-pointer
+                      disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
         </Form.Submit>
+        
+        <div className="relative flex items-center justify-center my-4">
+          <div className="flex-grow border-t border-zinc-600"></div>
+          <span className="flex-shrink mx-4 text-zinc-400 text-sm">OU</span>
+          <div className="flex-grow border-t border-zinc-600"></div>
+        </div>
 
-        <div className="text-center mt-4">
+        <a
+          href={`${BACKEND_URL}/oauth2/authorization/google`}
+          className="w-full h-11 rounded-md text-gray-300 font-semibold
+                     flex items-center justify-center gap-2
+                     bg-zinc-900 border border-zinc-700
+                     hover:bg-zinc-700
+                     transition-colors duration-300 cursor-pointer"
+          style={{ textDecoration: 'none' }}
+        >
+          <FaGoogle />
+          Entrar com Google
+        </a>
+
+        <div className="text-center mt-6">
           <Link to="/register" className="text-gray-400 hover:text-primary transition-colors">
             Não tem uma conta? Cadastre-se
           </Link>
