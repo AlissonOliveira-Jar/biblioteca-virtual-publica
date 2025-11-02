@@ -3,11 +3,13 @@ package com.biblioteca.backend.service;
 import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
+import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
 import com.biblioteca.backend.repository.UserRepository;
+import com.biblioteca.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +25,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public UserDTO createUser(UserCreateDTO dto) {
@@ -74,7 +78,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO updateUser(UUID id, UserUpdateDTO dto) {
+    public UserUpdateResponseDTO updateUser(UUID id, UserUpdateDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
@@ -104,7 +108,9 @@ public class UserService {
         }
 
         User updatedUser = userRepository.save(user);
-        return UserDTO.fromEntity(updatedUser);
+        String newToken = jwtService.generateToken(updatedUser);
+
+        return new UserUpdateResponseDTO(UserDTO.fromEntity(updatedUser), newToken);
     }
 
     public void deleteUser(UUID id) {

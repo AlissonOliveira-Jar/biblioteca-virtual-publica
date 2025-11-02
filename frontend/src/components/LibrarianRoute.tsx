@@ -2,8 +2,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { FaSpinner } from 'react-icons/fa';
 
-const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+const LibrarianRoute = () => {
+  const { isAuthenticated, roles, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -17,7 +17,12 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" />;
   }
 
+  const isAuthorized = roles.includes('BIBLIOTECARIO') || roles.includes('ADMIN');
+  if (!isAuthorized) {
+    return <Navigate to="/forbidden" />;
+  }
+
   return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default LibrarianRoute;

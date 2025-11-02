@@ -1,7 +1,7 @@
 import { FaGithub } from 'react-icons/fa';
 
 const Footer = () => {
-  const githubRepoUrl = "https://github.com/AlissonOliveira-Jar/biblioteca-virtual-publica/tree/feature/telas-autenticacao";
+  const githubRepoUrl = "https://github.com/AlissonOliveira-Jar/biblioteca-virtual-publica";
 
   return (
     <footer className="bg-zinc-900 text-gray-400 mt-auto">

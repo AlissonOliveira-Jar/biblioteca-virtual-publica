@@ -18,6 +18,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -42,12 +44,10 @@ public class SecurityConfig {
 
     private final RSAKey rsaKey = KeyGeneratorUtils.generateRsaJwk();
 
-    private final UserRepository userRepository;
     private final Oauth2UserService oauth2UserService;
     private final OAuth2LoginHandler oAuth2LoginHandler;
 
-    public SecurityConfig(UserRepository userRepository, Oauth2UserService oauth2UserService,OAuth2LoginHandler oAuth2LoginHandler) {
-        this.userRepository = userRepository;
+    public SecurityConfig(Oauth2UserService oauth2UserService, OAuth2LoginHandler oAuth2LoginHandler) {
         this.oauth2UserService = oauth2UserService;
         this.oAuth2LoginHandler = oAuth2LoginHandler;
     }
@@ -55,6 +55,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserCache userCache() {
+        return new NullUserCache();
     }
 
     @Bean
@@ -78,7 +83,16 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/chat/**")).permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(oauth2UserService))
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth2/authorization/google")
+
+                        // 🚨 CRÍTICO: Usa o userService. Isso é o que o Spring Security garante
+                        // que substitui o DefaultOAuth2UserService.
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oauth2UserService)
+                        )
+
+                        // Usa o seu manipulador customizado
                         .successHandler(oAuth2LoginHandler)
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
