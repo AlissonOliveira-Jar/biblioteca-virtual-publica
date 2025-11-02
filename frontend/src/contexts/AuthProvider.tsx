@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './auth-definitions';
+import toast from 'react-hot-toast';
 
 import type { ReactNode } from 'react';
 import type { AuthContextType } from './auth-definitions';
@@ -40,10 +41,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setRoles([]);
         }
       } else {
-         setIsAuthenticated(false);
-         setUserName(null);
-         setUserId(null);
-         setRoles([]);
+        setIsAuthenticated(false);
+        setUserName(null);
+        setUserId(null);
+        setRoles([]);
       }
     } catch (error) {
       console.error("Token inválido ao carregar:", error);
@@ -57,7 +58,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []); 
 
-  const login = (token: string) => {
+  const logout = useCallback(() => {
+    localStorage.removeItem('authToken');
+    setIsAuthenticated(false);
+    setUserName(null);
+    setUserId(null);
+    setRoles([]);
+    setIsLoading(false); 
+    navigate('/login');
+  }, [navigate]);
+
+  const login = useCallback((token: string) => {
     localStorage.setItem('authToken', token);
     try {
       const decodedToken = jwtDecode<DecodedToken>(token);
@@ -66,24 +77,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserId(decodedToken.sub);
       setRoles(decodedToken.roles);
       setIsLoading(false); 
+      
+      toast.success('Login com Google efetuado com sucesso!');
       navigate('/home');
+
     } catch (error) {
       console.error("Erro ao decodificar token no login:", error);
       logout();
     }
-  };
+  }, [navigate, logout]);
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    setIsAuthenticated(false);
-    setUserName(null);
-    setUserId(null);
-    setRoles([]);
-    setIsLoading(false); 
-    navigate('/login');
-  };
-
-  const contextValue: AuthContextType = {
+  const contextValue: AuthContextType = useMemo(() => ({
     isAuthenticated,
     userName,
     userId,
@@ -91,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     login,
     logout
-  };
+  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]);
 
   return (
     <AuthContext.Provider value={contextValue}>

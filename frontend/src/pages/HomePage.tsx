@@ -3,9 +3,11 @@ import { FaSearch, FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNe
 import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
-  const { userName, roles } = useAuth();
-  const isAdmin = roles.includes('ADMIN');
-  const isBibliotecario = roles.includes('BIBLIOTECARIO');
+const { userName, roles } = useAuth();
+
+  const userRoles = roles || [];
+  const isAdmin = userRoles.includes('ADMIN');
+  const isBibliotecario = userRoles.includes('BIBLIOTECARIO');
   const canManageAcervo = isAdmin || isBibliotecario;
 
   return (
