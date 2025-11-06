@@ -22,6 +22,7 @@ import ArticlesListPage from './pages/ArticlesListPage';
 import ArticleFormPage from './pages/ArticleFormPage';
 import BooksListPage from './pages/BooksListPage';
 import BookFormPage from './pages/BookFormPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 const MainLayout = () => {
   return (
@@ -42,6 +43,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/server-error" element={<ServerErrorPage />} />
