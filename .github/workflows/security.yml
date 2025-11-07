@@ -18,14 +18,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Roda Trivy FS
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.20.0
         with:
-          scan-type: 'fs'             # Escaneia o sistema de arquivos
-          scan-ref: '.'               # Escaneia o diretório raiz
-          scanners: 'vuln,secret,misconfig' # Procura vulnerabilidades, segredos e más configs
-          exit-code: '1'            # Falha o job se encontrar algo
-          severity: 'HIGH,CRITICAL' # Falha apenas se for HIGH ou CRITICAL
-          ignore-unfixed: true      # Não falha se a vulnerabilidade não tiver correção
+          scan-type: 'fs'
+          scan-ref: '.'
+          scanners: 'vuln,secret,misconfig'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
           ignore-file: '.trivyignore'
 
   # Job 2: Escaneia a imagem customizada do Frontend
@@ -99,7 +99,7 @@ jobs:
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
-          ignore-file: '.trivyignore' # <--- ADICIONE ISTO
+          ignore-file: '.trivyignore'
 
       - name: Scan Zookeeper
         uses: aquasecurity/trivy-action@master

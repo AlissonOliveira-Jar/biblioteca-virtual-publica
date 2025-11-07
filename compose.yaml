@@ -20,7 +20,7 @@ services:
       - no-new-privileges:true
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.3
+    image: confluentinc/cp-zookeeper:7.6.1
     container_name: zookeeper_biblioteca
     ports:
       - "2181:2181"
@@ -32,12 +32,19 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: [ "CMD-SHELL", "echo srvr | nc localhost 2181 | grep -q Mode" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   kafka:
-    image: confluentinc/cp-kafka:7.5.3
+    image: confluentinc/cp-kafka:7.6.1
     container_name: kafka_biblioteca
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "29092:29092"
     volumes:

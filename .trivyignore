@@ -1,5 +1,0 @@
-# Ignorando falhas conhecidas na 'stdlib' do 'gosu' da imagem postgres:15-alpine
-# Essas falhas são de baixo impacto no contexto do contêiner.
-
-
-# Ignorando falhas conhecidas na 'libxml2' da imagem nginx:stable-alpine
