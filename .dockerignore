@@ -1,0 +1,18 @@
+# Arquivos de dependência do host
+node_modules
+
+# Arquivos de build local
+dist
+build
+
+# Logs
+npm-debug.log
+*.log
+
+# Git
+.git
+.gitignore
+
+# Arquivos de ambiente
+.env
+.env.local
