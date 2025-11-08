@@ -9,7 +9,18 @@ RUN npm run build
 
 # Stage 1: Serve the built application with Nginx
 FROM nginx:stable-alpine
+
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN sed -i -e 's|/run/nginx.pid|/tmp/nginx.pid|' \
+           -e 's|^user .*nginx.*|#&|' /etc/nginx/nginx.conf
+
+RUN mkdir -p /var/cache/nginx /var/log/nginx \
+    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx
+
+USER nginx
+
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
