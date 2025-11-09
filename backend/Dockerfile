@@ -1,5 +1,5 @@
 # Etapa de Build
-FROM maven:3.9.4-eclipse-temurin-21 AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 
 COPY src /app/src
 COPY pom.xml /app
@@ -9,9 +9,6 @@ RUN mvn clean install -DskipTests
 
 # Etapa de Execução
 FROM eclipse-temurin:21-jre-alpine
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
 
 COPY --from=build /app/target/backend-1.1.0.jar /app/app.jar
 
