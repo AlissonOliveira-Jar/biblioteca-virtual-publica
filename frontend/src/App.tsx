@@ -23,6 +23,7 @@ import ArticleFormPage from './pages/ArticleFormPage';
 import BooksListPage from './pages/BooksListPage';
 import BookFormPage from './pages/BookFormPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import SearchResultsPage from './pages/SearchResultsPage';
 
 const MainLayout = () => {
   return (
@@ -52,6 +53,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
         </Route>
 
         <Route element={<AdminRoute />}>

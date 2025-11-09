@@ -18,6 +18,8 @@ services:
       retries: 5
     security_opt:
       - no-new-privileges:true
+    networks:
+      - biblioteca-net
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
@@ -38,6 +40,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - biblioteca-net
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
@@ -64,6 +68,37 @@ services:
       start_period: 10s
     security_opt:
       - no-new-privileges:true
+    networks:
+      - biblioteca-net
+
+  elasticsearch:
+    image: elasticsearch:9.2.0
+    container_name: elasticsearch
+    restart: always
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data/
+    environment:
+      - xpack.security.enabled=false # atenção para por em true na prod
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TZ=America/Sao_Paulo
+      - discovery.type=single-node
+    ports:
+      - '9200:9200'
+    networks:
+      - biblioteca-net
+
+  kibana:
+    image: kibana:9.2.0
+    container_name: kibana
+    restart: always
+    ports:
+      - '5601:5601'
+    environment:
+      - ELASTICSEARCH_URLS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - biblioteca-net
 
   backend_biblioteca:
     build:
@@ -80,6 +115,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=biblioteca_virtual
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
       - TZ=America/Sao_Paulo
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
     depends_on:
@@ -87,6 +123,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      elasticsearch:
+        condition: service_started
     security_opt:
       - no-new-privileges:true
     user: "1000:1000"
@@ -95,6 +133,8 @@ services:
         limits:
           cpus: "1.0"
           memory: 1g
+    networks:
+      - biblioteca-net
 
   frontend_biblioteca:
     build: ./frontend
@@ -105,9 +145,16 @@ services:
       - backend_biblioteca
     security_opt:
       - no-new-privileges:true
+    networks:
+      - biblioteca-net
+
+networks:
+  biblioteca-net:
+    driver: bridge
 
 volumes:
   postgres_data:
   zookeeper_data:
   zookeeper_log:
   kafka_data:
+  elastic_data: {}

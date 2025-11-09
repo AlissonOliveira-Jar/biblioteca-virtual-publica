@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaSearch, FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNewspaper, FaBookOpen } from 'react-icons/fa';
+import { FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNewspaper, FaBookOpen } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
@@ -20,17 +20,6 @@ const { userName, roles } = useAuth();
           Explore um universo de conhecimento ao seu alcance.
         </p>
       </header>
-
-      <div className="mb-12">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Buscar por título, autor ou ISBN..."
-            className="w-full h-14 pl-12 pr-4 rounded-lg bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-        </div>
-      </div>
 
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
