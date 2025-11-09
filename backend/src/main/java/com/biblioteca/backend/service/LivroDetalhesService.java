@@ -1,11 +1,9 @@
 package com.biblioteca.backend.service;
-import com.biblioteca.backend.service.OpenLibraryApiService;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.LinkedHashMap;
