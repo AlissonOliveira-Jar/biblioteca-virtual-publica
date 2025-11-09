@@ -1,5 +1,6 @@
 package com.biblioteca.backend.service;
 
+import com.biblioteca.backend.document.LivroDocument;
 import com.biblioteca.backend.dto.request.LivroDTO;
 import com.biblioteca.backend.entity.Autor;
 import com.biblioteca.backend.entity.Editora;
@@ -10,6 +11,7 @@ import com.biblioteca.backend.exception.LivroNotFoundException;
 import com.biblioteca.backend.repository.AutorRepository;
 import com.biblioteca.backend.repository.EditoraRepository;
 import com.biblioteca.backend.repository.LivroRepository;
+import com.biblioteca.backend.repository.elastic.LivroSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,9 @@ public class LivroService {
     private final LivroRepository livroRepository;
     private final AutorRepository autorRepository;
     private final EditoraRepository editoraRepository;
+    private final LivroSearchRepository livroSearchRepository;
 
+    @Transactional
     public LivroDTO createLivro(LivroDTO livroDTO) {
         Autor autor = autorRepository.findById(livroDTO.autorId())
                 .orElseThrow(() -> new AutorNotFoundException("Autor não encontrado com o ID: " + livroDTO.autorId()));
@@ -47,6 +51,9 @@ public class LivroService {
         livro.setEditora(editora);
 
         Livro savedLivro = livroRepository.save(livro);
+
+        livroSearchRepository.save(LivroDocument.from(savedLivro));
+
         return LivroDTO.fromEntity(savedLivro);
     }
 
@@ -86,14 +93,21 @@ public class LivroService {
         livroExistente.setEditora(editora);
 
         Livro updatedLivro = livroRepository.save(livroExistente);
+
+        livroSearchRepository.save(LivroDocument.from(updatedLivro));
+
         return LivroDTO.fromEntity(updatedLivro);
     }
 
+    @Transactional
     public void deleteLivro(UUID id) {
         if (!livroRepository.existsById(id)) {
             throw new LivroNotFoundException("Livro não encontrado com o ID: " + id);
         }
+        
         livroRepository.deleteById(id);
+        
+        livroSearchRepository.deleteById(id);
     }
 
     public List<LivroDTO> findByTitulo(String titulo) {

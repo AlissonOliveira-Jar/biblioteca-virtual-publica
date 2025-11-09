@@ -1,10 +1,12 @@
 package com.biblioteca.backend.service;
 
+import com.biblioteca.backend.document.EditoraDocument;
 import com.biblioteca.backend.dto.request.EditoraDTO;
 import com.biblioteca.backend.entity.Editora;
 import com.biblioteca.backend.entity.Livro;
 import com.biblioteca.backend.exception.EditoraNotFoundException;
 import com.biblioteca.backend.repository.EditoraRepository;
+import com.biblioteca.backend.repository.elastic.EditoraSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +20,20 @@ import java.util.stream.Collectors;
 public class EditoraService {
 
     private final EditoraRepository editoraRepository;
+    private final EditoraSearchRepository editoraSearchRepository;
 
+    @Transactional
     public EditoraDTO createEditora(EditoraDTO editoraDTO) {
         Editora editora = new Editora();
         editora.setNome(editoraDTO.nome());
         editora.setPais(editoraDTO.pais());
         editora.setDataFundacao(editoraDTO.dataFundacao());
         editora.setWebsite(editoraDTO.website());
+        
         Editora savedEditora = editoraRepository.save(editora);
+
+        editoraSearchRepository.save(EditoraDocument.from(savedEditora));
+
         return EditoraDTO.fromEntity(savedEditora);
     }
 
@@ -68,14 +76,21 @@ public class EditoraService {
         editoraExistente.setWebsite(editoraDTO.website());
 
         Editora updatedEditora = editoraRepository.save(editoraExistente);
+        
+        editoraSearchRepository.save(EditoraDocument.from(updatedEditora));
+
         return EditoraDTO.fromEntity(updatedEditora);
     }
 
+    @Transactional
     public void deleteEditora(UUID id) {
         if (!editoraRepository.existsById(id)) {
             throw new EditoraNotFoundException("Editora não encontrada com o ID: " + id);
         }
+        
         editoraRepository.deleteById(id);
+        
+        editoraSearchRepository.deleteById(id);
     }
 
 }

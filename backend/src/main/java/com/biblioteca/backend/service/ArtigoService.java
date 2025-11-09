@@ -1,5 +1,6 @@
 package com.biblioteca.backend.service;
 
+import com.biblioteca.backend.document.ArtigoDocument;
 import com.biblioteca.backend.dto.request.ArtigoDTO;
 import com.biblioteca.backend.entity.Artigo;
 import com.biblioteca.backend.entity.Autor;
@@ -7,6 +8,7 @@ import com.biblioteca.backend.exception.ArtigoNotFoundException;
 import com.biblioteca.backend.exception.AutorNotFoundException;
 import com.biblioteca.backend.repository.ArtigoRepository;
 import com.biblioteca.backend.repository.AutorRepository;
+import com.biblioteca.backend.repository.elastic.ArtigoSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class ArtigoService {
 
     private final ArtigoRepository artigoRepository;
     private final AutorRepository autorRepository;
+    private final ArtigoSearchRepository artigoSearchRepository;
 
     private List<Autor> buscarAutoresPorIds(List<UUID> autoresIds) {
         return autoresIds.stream()
@@ -29,6 +32,7 @@ public class ArtigoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional // <-- ALTERADO
     public ArtigoDTO createArtigo(ArtigoDTO artigoDTO) {
         List<Autor> autores = buscarAutoresPorIds(artigoDTO.autoresIds());
 
@@ -46,6 +50,9 @@ public class ArtigoService {
         artigo.setPaginaFinal(artigoDTO.paginaFinal());
 
         Artigo savedArtigo = artigoRepository.save(artigo);
+        
+        artigoSearchRepository.save(ArtigoDocument.from(savedArtigo));
+
         return ArtigoDTO.fromEntity(savedArtigo);
     }
 
@@ -81,14 +88,21 @@ public class ArtigoService {
         artigoExistente.setPaginaFinal(artigoDTO.paginaFinal());
 
         Artigo updatedArtigo = artigoRepository.save(artigoExistente);
+        
+        artigoSearchRepository.save(ArtigoDocument.from(updatedArtigo));
+
         return ArtigoDTO.fromEntity(updatedArtigo);
     }
 
+    @Transactional
     public void deleteArtigo(UUID id) {
         if (!artigoRepository.existsById(id)) {
             throw new ArtigoNotFoundException("Artigo não encontrado com o ID: " + id);
         }
+        
         artigoRepository.deleteById(id);
+        
+        artigoSearchRepository.deleteById(id);
     }
 
     public List<ArtigoDTO> findByTitulo(String titulo) {

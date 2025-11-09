@@ -1,5 +1,6 @@
 package com.biblioteca.backend.service;
 
+import com.biblioteca.backend.document.UserDocument;
 import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
@@ -9,6 +10,7 @@ import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
 import com.biblioteca.backend.repository.UserRepository;
+import com.biblioteca.backend.repository.elastic.UserSearchRepository;
 import com.biblioteca.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,13 +28,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserSearchRepository userSearchRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public UserService(UserRepository userRepository, 
+                         PasswordEncoder passwordEncoder, 
+                         JwtService jwtService, 
+                         UserSearchRepository userSearchRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.userSearchRepository = userSearchRepository;
     }
 
+    @Transactional
     public UserDTO createUser(UserCreateDTO dto) {
         if (userRepository.existsByEmail(dto.email())) {
             throw new UserAlreadyExistsException("Usuário já existe");
@@ -45,6 +53,9 @@ public class UserService {
         user.setRoles(Set.of("USER"));
 
         User savedUser = userRepository.save(user);
+        
+        userSearchRepository.save(UserDocument.from(savedUser));
+
         return UserDTO.fromEntity(savedUser);
     }
 
@@ -108,16 +119,23 @@ public class UserService {
         }
 
         User updatedUser = userRepository.save(user);
+        
+        userSearchRepository.save(UserDocument.from(updatedUser));
+
         String newToken = jwtService.generateToken(updatedUser);
 
         return new UserUpdateResponseDTO(UserDTO.fromEntity(updatedUser), newToken);
     }
 
+    @Transactional
     public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Usuário não encontrado");
         }
+        
         userRepository.deleteById(id);
+        
+        userSearchRepository.deleteById(id);
     }
 
     public List<UserDTO> getAllUsers() {
@@ -133,7 +151,11 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         user.setRoles(validateRoles(roles));
+
         User updatedUser = userRepository.save(user);
+
+        userSearchRepository.save(UserDocument.from(updatedUser));
+
         return UserDTO.fromEntity(updatedUser);
     }
 }

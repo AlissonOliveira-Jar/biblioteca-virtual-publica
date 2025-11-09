@@ -1,11 +1,13 @@
 package com.biblioteca.backend.service;
 
+import com.biblioteca.backend.document.AutorDocument;
 import com.biblioteca.backend.dto.request.AutorDTO;
 import com.biblioteca.backend.entity.Artigo;
 import com.biblioteca.backend.entity.Autor;
 import com.biblioteca.backend.entity.Livro;
 import com.biblioteca.backend.exception.AutorNotFoundException;
 import com.biblioteca.backend.repository.AutorRepository;
+import com.biblioteca.backend.repository.elastic.AutorSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +21,9 @@ import java.util.stream.Collectors;
 public class AutorService {
 
     private final AutorRepository autorRepository;
+    private final AutorSearchRepository autorSearchRepository;
 
+    @Transactional
     public AutorDTO createAutor(AutorDTO autorDTO) {
         Autor autor = new Autor();
         autor.setNome(autorDTO.nome());
@@ -27,7 +31,11 @@ public class AutorService {
         autor.setDataNascimento(autorDTO.dataNascimento());
         autor.setDataFalescimento(autorDTO.dataFalescimento());
         autor.setBiografia(autorDTO.biografia());
+        
         Autor savedAutor = autorRepository.save(autor);
+        
+        autorSearchRepository.save(AutorDocument.from(savedAutor));
+
         return AutorDTO.fromEntity(savedAutor);
     }
 
@@ -67,14 +75,21 @@ public class AutorService {
         autorExistente.setBiografia(autorDTO.biografia());
 
         Autor updatedAutor = autorRepository.save(autorExistente);
+
+        autorSearchRepository.save(AutorDocument.from(updatedAutor));
+
         return AutorDTO.fromEntity(updatedAutor);
     }
 
+    @Transactional
     public void deleteAutor(UUID id) {
         if (!autorRepository.existsById(id)) {
             throw new AutorNotFoundException("Autor não encontrado com o ID: " + id);
         }
+        
         autorRepository.deleteById(id);
+        
+        autorSearchRepository.deleteById(id);
     }
 
 }
