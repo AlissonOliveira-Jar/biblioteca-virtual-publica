@@ -17,48 +17,54 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/autores")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('BIBLIOTECARIO')")
 public class AutorController {
 
     private final AutorService autorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('BIBLIOTECARIO', 'ADMIN')")
     public ResponseEntity<AutorDTO> createAutor(@Valid @RequestBody AutorDTO autorDTO) {
         AutorDTO createdAutor = autorService.createAutor(autorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAutor);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AutorDTO> getAutorById(@PathVariable UUID id) {
         AutorDTO autor = autorService.getAutorById(id);
         return ResponseEntity.ok(autor);
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<AutorDTO>> getAllAutores() {
         List<AutorDTO> autores = autorService.getAllAutores();
         return ResponseEntity.ok(autores);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('BIBLIOTECARIO', 'ADMIN')")
     public ResponseEntity<AutorDTO> updateAutor(@PathVariable UUID id, @Valid @RequestBody AutorDTO autorDTO) {
         AutorDTO updatedAutor = autorService.updateAutor(id, autorDTO);
         return ResponseEntity.ok(updatedAutor);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('BIBLIOTECARIO', 'ADMIN')")
     public ResponseEntity<Void> deleteAutor(@PathVariable UUID id) {
         autorService.deleteAutor(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/livros")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Livro>> getLivrosByAutor(@PathVariable UUID id) {
         List<Livro> livros = autorService.getLivrosByAutor(id);
         return ResponseEntity.ok(livros);
     }
 
     @GetMapping("/{id}/artigos")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Artigo>> getArtigosByAutor(@PathVariable UUID id) {
         List<Artigo> artigos = autorService.getArtigosByAutor(id);
         return ResponseEntity.ok(artigos);
