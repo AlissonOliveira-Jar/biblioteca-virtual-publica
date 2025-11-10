@@ -45,8 +45,9 @@ const BookFormPage = () => {
             numeroPaginas: livroData.numeroPaginas ?? null,
             genero: livroData.genero ?? '',
             resumo: livroData.resumo ?? '',
-            autorId: livroData.autorId,
-            editoraId: livroData.editoraId ?? '',
+            
+            autorId: livroData.autor?.id ?? '', 
+            editoraId: livroData.editora?.id ?? '',
           };
           reset(formData);
         }

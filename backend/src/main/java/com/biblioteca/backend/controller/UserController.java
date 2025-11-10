@@ -40,21 +40,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+    @PreAuthorize("@userService.getUserByEmail(principal.name).id == #id or hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
         UserDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/names")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<String>> getAllUserNames() {
         List<String> userNames = userService.getAllUserNames();
         return ResponseEntity.ok(userNames);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+    @PreAuthorize("@userService.getUserByEmail(principal.name).id == #id or hasRole('ADMIN')")
     public ResponseEntity<UserUpdateResponseDTO> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UserUpdateDTO dto
@@ -74,14 +74,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+    @PreAuthorize("@userService.getUserByEmail(principal.name).id == #id or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteMyAccount(Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
         userService.deleteUser(user.getId());
