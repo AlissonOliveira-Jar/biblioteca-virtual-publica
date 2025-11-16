@@ -30,6 +30,7 @@ import ArticleDetailPage from './pages/ArticleDetailPage';
 import PublisherDetailPage from './pages/PublisherDetailPage';
 import MyBooksPage from './pages/MyBooksPage';
 import BookReaderPage from './pages/BookReaderPage';
+import DiscoverBooksPage from './pages/DiscoverBooksPage';
 
 const MainLayout = () => {
   return (
@@ -66,6 +67,7 @@ function App() {
           <Route path="/editoras/:id" element={<PublisherDetailPage />} />
           <Route path="/my-books" element={<MyBooksPage />} />
           <Route path="/livros/:id/ler" element={<BookReaderPage />} />
+          <Route path="/discover" element={<DiscoverBooksPage />} />
         </Route>
 
         {/* --- Rotas de Admin --- */}

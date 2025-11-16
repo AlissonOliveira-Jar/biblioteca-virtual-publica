@@ -7,7 +7,7 @@ const LibrarianRoute = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-grow flex items-center justify-center">
+      <div className="grow flex items-center justify-center">
         <FaSpinner className="animate-spin text-primary text-4xl" />
       </div>
     );

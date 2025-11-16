@@ -46,6 +46,13 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getMyProfile(Principal principal) {
+        UserDTO user = userService.getUserByEmail(principal.getName()); 
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/names")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<String>> getAllUserNames() {
@@ -83,7 +90,7 @@ public class UserController {
     @DeleteMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteMyAccount(Principal principal) {
-        User user = userService.getUserByEmail(principal.getName());
+        User user = userService.getUserEntityByEmail(principal.getName()); 
         userService.deleteUser(user.getId());
         return ResponseEntity.noContent().build();
     }

@@ -6,12 +6,17 @@ import { Toaster } from 'react-hot-toast';
 import './style.css';
 import App from './App.tsx';
 
+import { FavoritesProvider } from './hooks/useFavoritesCount.tsx'; 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <Toaster position="top-right" reverseOrder={false} />
-        <App />
+        <FavoritesProvider>
+          <Toaster position="top-right" reverseOrder={false} />
+          <App />
+        </FavoritesProvider>
+        
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

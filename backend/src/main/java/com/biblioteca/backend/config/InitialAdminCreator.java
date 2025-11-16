@@ -20,7 +20,7 @@ public class InitialAdminCreator implements CommandLineRunner {
 
     @Value("${admin.initial.password}")
     private String adminPassword;
-
+    
     @Value("${admin.initial.name}")
     private String adminName;
 
