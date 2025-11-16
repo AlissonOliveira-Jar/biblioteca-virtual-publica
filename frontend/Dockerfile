@@ -10,6 +10,7 @@ RUN npm run build
 # Stage 1: Serve the built application with Nginx
 FROM nginx:1.29.3
 
+COPY nginx-mime.conf /etc/nginx/conf.d/mime.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 

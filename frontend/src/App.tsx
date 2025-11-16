@@ -28,12 +28,14 @@ import AuthorDetailPage from './pages/AuthorDetailPage';
 import BookDetailPage from './pages/BookDetailPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import PublisherDetailPage from './pages/PublisherDetailPage';
+import MyBooksPage from './pages/MyBooksPage';
+import BookReaderPage from './pages/BookReaderPage';
 
 const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen"> 
       <Navbar />
-      <main className="flex-grow container mx-auto p-4 flex flex-col">
+      <main className="grow container mx-auto p-4 flex flex-col">
         <Outlet />
       </main>
       <Footer />
@@ -62,6 +64,8 @@ function App() {
           <Route path="/livros/:id" element={<BookDetailPage />} />
           <Route path="/artigos/:id" element={<ArticleDetailPage />} />
           <Route path="/editoras/:id" element={<PublisherDetailPage />} />
+          <Route path="/my-books" element={<MyBooksPage />} />
+          <Route path="/livros/:id/ler" element={<BookReaderPage />} />
         </Route>
 
         {/* --- Rotas de Admin --- */}

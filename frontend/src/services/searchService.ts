@@ -8,7 +8,7 @@ export interface SearchResult {
 }
 
 export const searchGlobal = async (query: string): Promise<SearchResult[]> => {
-  const response = await api.get<SearchResult[]>(`/v1/search`, {
+  const response = await api.get<SearchResult[]>(`/api/search`, {
     params: { q: query }
   });
   return response.data;

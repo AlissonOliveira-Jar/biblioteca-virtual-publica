@@ -5,6 +5,7 @@ import com.biblioteca.backend.service.IntegracaoDriveService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/drive")
+@RequestMapping("/api/drive")
 @RequiredArgsConstructor
 @Tag(name = "Google Drive", description = "Integração com a pasta Livros no Drive")
 public class IntegracaoDriveController {
@@ -20,6 +21,7 @@ public class IntegracaoDriveController {
     private final IntegracaoDriveService integracaoDriveService;
 
     @GetMapping("/livros")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BIBLIOTECARIO')")
     public ResponseEntity<?> listarLivros() {
         try {
             List<Map<String, Object>> arquivos = integracaoDriveService.listarLivros();

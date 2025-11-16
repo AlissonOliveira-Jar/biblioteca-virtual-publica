@@ -43,6 +43,8 @@ export const livroSchema = z.object({
   editoraId: z.string()
     .uuid({ message: "ID de editora inválido." })
     .optional().or(z.literal('')).or(z.null()),
+
+  googleDriveFileId: z.string().nullable().optional()
 });
 
 export type LivroSchema = z.infer<typeof livroSchema>;

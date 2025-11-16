@@ -49,11 +49,10 @@ public class LivroService {
         livro.setResumo(livroDTO.resumo());
         livro.setAutor(autor);
         livro.setEditora(editora);
+        livro.setGoogleDriveFileId(livroDTO.googleDriveFileId());
 
         Livro savedLivro = livroRepository.save(livro);
-
         livroSearchRepository.save(LivroDocument.from(savedLivro));
-
         return LivroDTO.fromEntity(savedLivro);
     }
 
@@ -91,11 +90,10 @@ public class LivroService {
         livroExistente.setResumo(livroDTO.resumo());
         livroExistente.setAutor(autor);
         livroExistente.setEditora(editora);
+        livroExistente.setGoogleDriveFileId(livroDTO.googleDriveFileId());
 
         Livro updatedLivro = livroRepository.save(livroExistente);
-
         livroSearchRepository.save(LivroDocument.from(updatedLivro));
-
         return LivroDTO.fromEntity(updatedLivro);
     }
 

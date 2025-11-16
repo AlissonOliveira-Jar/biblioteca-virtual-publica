@@ -61,6 +61,9 @@ public class Livro {
     @Version
     private Integer version;
 
+    @Column(name = "google_drive_file_id")
+    private String googleDriveFileId;
+
     public Livro() {
     }
 
