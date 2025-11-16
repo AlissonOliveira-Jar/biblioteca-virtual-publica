@@ -86,13 +86,10 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/google")
 
-                        // 🚨 CRÍTICO: Usa o userService. Isso é o que o Spring Security garante
-                        // que substitui o DefaultOAuth2UserService.
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauth2UserService)
                         )
 
-                        // Usa o seu manipulador customizado
                         .successHandler(oAuth2LoginHandler)
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
