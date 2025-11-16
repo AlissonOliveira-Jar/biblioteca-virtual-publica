@@ -26,14 +26,14 @@ const Navbar = () => {
         {/* Título */}
         <Link 
           to={isAuthenticated ? "/home" : "/"} 
-          className="text-xl font-bold text-gray-100 hover:text-primary transition-colors flex-shrink-0" // flex-shrink-0 impede que encolha
+          className="text-xl font-bold text-gray-100 hover:text-primary transition-colors shrink-0"
         >
           Biblioteca Virtual Pública
         </Link>
 
         {/* Centro: Barra de Busca (SÓ APARECE SE ESTIVER LOGADO) */}
         {isAuthenticated && (
-          <div className="flex-grow flex justify-center px-4">
+          <div className="grow flex justify-center px-4">
             <div className="relative w-full max-w-md">
               <input
                 type="text"
@@ -53,7 +53,7 @@ const Navbar = () => {
         )}
 
         {/* Direita: Botões de Ação */}
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-4 shrink-0">
           {isAuthenticated ? (
             <button
               onClick={logout}
@@ -77,7 +77,7 @@ const Navbar = () => {
               <Link 
                 to="/register" 
                 className="px-4 py-2 border border-none rounded-md text-white font-bold
-                           bg-gradient-to-r from-purple-900 to-violet-500
+                           bg-linear-to-r from-purple-900 to-violet-500
                            hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
                            transition-all duration-500 cursor-pointer"
               >

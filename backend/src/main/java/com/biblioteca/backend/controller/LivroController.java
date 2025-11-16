@@ -2,12 +2,20 @@ package com.biblioteca.backend.controller;
 
 import com.biblioteca.backend.dto.request.LivroDTO;
 import com.biblioteca.backend.service.LivroService;
+import com.biblioteca.backend.service.DownloadDriveService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ByteArrayResource;
+import com.biblioteca.backend.exception.LivroNotFoundException;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +23,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/livros")
 @RequiredArgsConstructor
+@Slf4j
 public class LivroController {
 
     private final LivroService livroService;
+    private final DownloadDriveService downloadDriveService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'BIBLIOTECARIO')")
@@ -82,4 +92,43 @@ public class LivroController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/visualizar")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Resource> getLivroPdf(@PathVariable UUID id) {
+        try {
+            LivroDTO livro = livroService.getLivroById(id);
+            
+            String googleDriveFileId = livro.googleDriveFileId();
+            if (googleDriveFileId == null || googleDriveFileId.isBlank()) {
+                log.warn("Tentativa de visualizar livro sem googleDriveFileId. Livro ID: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+
+            byte[] pdfBytes = downloadDriveService.baixarArquivo(googleDriveFileId);
+
+            if (pdfBytes == null || pdfBytes.length == 0) {
+                if (pdfBytes == null) {
+                    log.error("Falha no download do Drive (retornou null) para o fileId: {}", googleDriveFileId);
+                } else {
+                    log.error("Falha no download do Drive (retornou 0 bytes) para o fileId: {}", googleDriveFileId);
+                }
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                     .body(null); 
+            }
+
+            ByteArrayResource resource = new ByteArrayResource(pdfBytes);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.titulo() + ".pdf\"") 
+                    .body(resource);
+
+        } catch (LivroNotFoundException e) {
+             log.warn("Tentativa de visualizar um livro que não foi encontrado. ID: {}", id);
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+             log.error("Erro inesperado ao tentar visualizar o livro ID: {}", id, e);
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
