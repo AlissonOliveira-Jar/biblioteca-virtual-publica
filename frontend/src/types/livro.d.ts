@@ -1,3 +1,6 @@
+import type { Autor } from './autor';
+import type { Editora } from './editora';
+
 export interface Livro {
   id?: string;
   titulo: string;
@@ -9,6 +12,9 @@ export interface Livro {
   resumo?: string | null;
   autorId: string;
   editoraId?: string | null;
+  autor?: Pick<Autor, 'id' | 'nome'>;
+  editora?: Pick<Editora, 'id' | 'nome'> | null;
+  googleDriveFileId?: string | null;
 }
 
 export interface LivroFormData {
@@ -21,4 +27,5 @@ export interface LivroFormData {
   resumo?: string | null;
   autorId: string;
   editoraId?: string | null;
+  googleDriveFileId?: string | null;
 }

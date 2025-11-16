@@ -1,5 +1,5 @@
 # Etapa de Build
-FROM maven:3.9.4-eclipse-temurin-21 AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 
 COPY src /app/src
 COPY pom.xml /app

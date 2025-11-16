@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { livroService } from '../services/livroService';
 import { autorService } from '../services/autorService';
 import { editoraService } from '../services/editoraService';
+import { driveService } from '../services/driveService';
 import toast from 'react-hot-toast';
 import { useLivroForm } from '../hooks/useLivroForm';
 import type { LivroSchema } from '../schemas/livroSchema';
 import type { Autor } from '../types/autor';
 import type { Editora } from '../types/editora';
+import type { DriveFile } from '../services/driveService';
 import * as Form from '@radix-ui/react-form';
 import { FaSpinner, FaSave, FaBook, FaUserEdit } from 'react-icons/fa';
 import axios from 'axios';
@@ -21,6 +23,7 @@ const BookFormPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [allAuthors, setAllAuthors] = useState<Autor[]>([]);
   const [allEditors, setAllEditors] = useState<Editora[]>([]);
+  const [allDriveFiles, setAllDriveFiles] = useState<DriveFile[]>([]);
 
   const { register, handleSubmit, formState: { errors, isDirty }, reset } = useLivroForm();
 
@@ -28,12 +31,14 @@ const BookFormPage = () => {
     const fetchData = async () => {
       setIsLoadingData(true);
       try {
-        const [authorsData, editorsData] = await Promise.all([
+        const [authorsData, editorsData, driveFilesData] = await Promise.all([
           autorService.getAllAutores(),
-          editoraService.getAllEditoras()
+          editoraService.getAllEditoras(),
+          driveService.getDriveFiles()
         ]);
         setAllAuthors(authorsData);
         setAllEditors(editorsData);
+        setAllDriveFiles(driveFilesData);
 
         if (isEditMode && id) {
           const livroData = await livroService.getLivroById(id);
@@ -45,8 +50,9 @@ const BookFormPage = () => {
             numeroPaginas: livroData.numeroPaginas ?? null,
             genero: livroData.genero ?? '',
             resumo: livroData.resumo ?? '',
-            autorId: livroData.autorId,
+            autorId: livroData.autorId ?? '', 
             editoraId: livroData.editoraId ?? '',
+            googleDriveFileId: livroData.googleDriveFileId ?? ''
           };
           reset(formData);
         }
@@ -74,6 +80,7 @@ const BookFormPage = () => {
       genero: data.genero || null,
       resumo: data.resumo || null,
       editoraId: data.editoraId || null,
+      googleDriveFileId: data.googleDriveFileId || null
     };
 
     try {
@@ -99,7 +106,7 @@ const BookFormPage = () => {
 
   if (isLoadingData) {
     return (
-      <div className="flex-grow flex items-center justify-center">
+      <div className="grow flex items-center justify-center">
         <FaSpinner className="animate-spin text-primary text-4xl" />
         <p className="ml-4 text-gray-400">Carregando dados...</p>
       </div>
@@ -108,7 +115,7 @@ const BookFormPage = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto py-8">
-      <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-violet-500 mb-8 text-center flex items-center justify-center gap-3">
+      <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-purple-800 to-violet-500 mb-8 text-center flex items-center justify-center gap-3">
         {isEditMode ? <FaUserEdit /> : <FaBook />}
         {isEditMode ? 'Editar Livro' : 'Adicionar Novo Livro'}
       </h1>
@@ -240,6 +247,23 @@ const BookFormPage = () => {
             />
           </Form.Control>
           {errors.resumo && <small className="text-red-500 italic">{errors.resumo.message}</small>}
+        </Form.Field>
+
+        {/* Drive */}
+        <Form.Field name="googleDriveFileId" className="flex flex-col gap-1">
+          <Form.Label className="text-gray-400 font-medium">Arquivo do Google Drive (Opcional):</Form.Label>
+          <Form.Control asChild>
+            <select
+              {...register("googleDriveFileId")}
+              className="h-10 px-3 bg-zinc-900 text-white rounded-md border border-zinc-700 focus:border-primary focus:ring-1 focus:ring-primary"
+            >
+              <option value="">Nenhum arquivo (somente metadados)</option>
+              {allDriveFiles.map((file) => (
+                <option key={file.id} value={file.id}>{file.name}</option>
+              ))}
+            </select>
+          </Form.Control>
+          {errors.googleDriveFileId && <small className="text-red-500 italic">{errors.googleDriveFileId.message}</small>}
         </Form.Field>
 
         {/* Botões */}

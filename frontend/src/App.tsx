@@ -23,12 +23,19 @@ import ArticleFormPage from './pages/ArticleFormPage';
 import BooksListPage from './pages/BooksListPage';
 import BookFormPage from './pages/BookFormPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import SearchResultsPage from './pages/SearchResultsPage';
+import AuthorDetailPage from './pages/AuthorDetailPage';
+import BookDetailPage from './pages/BookDetailPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
+import PublisherDetailPage from './pages/PublisherDetailPage';
+import MyBooksPage from './pages/MyBooksPage';
+import BookReaderPage from './pages/BookReaderPage';
 
 const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen"> 
       <Navbar />
-      <main className="flex-grow container mx-auto p-4 flex flex-col">
+      <main className="grow container mx-auto p-4 flex flex-col">
         <Outlet />
       </main>
       <Footer />
@@ -40,24 +47,33 @@ function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
+        {/* --- Rotas Públicas --- */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
-
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/server-error" element={<ServerErrorPage />} />
 
+        {/* --- Rotas Protegidas (Usuário Logado) --- */}
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/autores/:id" element={<AuthorDetailPage />} />
+          <Route path="/livros/:id" element={<BookDetailPage />} />
+          <Route path="/artigos/:id" element={<ArticleDetailPage />} />
+          <Route path="/editoras/:id" element={<PublisherDetailPage />} />
+          <Route path="/my-books" element={<MyBooksPage />} />
+          <Route path="/livros/:id/ler" element={<BookReaderPage />} />
         </Route>
 
+        {/* --- Rotas de Admin --- */}
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
 
+        {/* --- Rotas de Bibliotecário (Gerenciamento) --- */}
         <Route element={<LibrarianRoute />}>
           <Route path="/autores" element={<AuthorsListPage />} />
           <Route path="/autores/novo" element={<AuthorFormPage />} />

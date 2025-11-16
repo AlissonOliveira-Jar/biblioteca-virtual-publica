@@ -37,7 +37,10 @@ public record LivroDTO(
         UUID autorId,
 
         @Schema(description = "ID da editora do livro (UUID)", example = "b1c2d3e4-f5a6-7890-1234-567890abcdef")
-        UUID editoraId
+        UUID editoraId,
+
+        @Schema(description = "ID do arquivo no Google Drive", example = "1aBcD_efG-HijkLmN...")
+        String googleDriveFileId
 ) {
     public static LivroDTO fromEntity(Livro livro) {
         return new LivroDTO(
@@ -50,7 +53,8 @@ public record LivroDTO(
                 livro.getGenero(),
                 livro.getResumo(),
                 livro.getAutor().getId(),
-                livro.getEditora() != null ? livro.getEditora().getId() : null
+                livro.getEditora() != null ? livro.getEditora().getId() : null,
+                livro.getGoogleDriveFileId()
         );
     }
 }
