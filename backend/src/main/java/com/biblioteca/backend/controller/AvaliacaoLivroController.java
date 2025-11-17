@@ -33,7 +33,7 @@ public class AvaliacaoLivroController {
             String email = request.email();
             log.info("Tentando avaliação para email: {}", email);
 
-            User user = userService.getUserByEmail(email);
+            User user = userService.getUserEntityByEmail(email);
             if (user == null) {
                 log.warn("Usuário não encontrado para email: {}", email);
                 return ResponseEntity.status(404).body("Usuário não encontrado: " + email);

@@ -41,10 +41,14 @@ public class Pontuacao {
     @Column(name = "ultima_pontuacao_leitura")
     private Instant ultimaPontuacaoLeitura = Instant.EPOCH;
 
+    public Pontuacao() {
+    }
+
     public Pontuacao(User user){
         this.user = user;
         this.pontos = 0L;
         this.nivel = 1;
+        this.ultimaPontuacaoLeitura = Instant.EPOCH;
     }
 
 

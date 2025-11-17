@@ -7,14 +7,14 @@ import lombok.Setter;
 @Setter
 
 public class RegistrarLeituraDTO {
-    private Long livroId;
-    private int paginasLidas;
+    private String idLivro;
+    private Integer paginaLida;
 
     public RegistrarLeituraDTO() {
     }
 
-    public RegistrarLeituraDTO(Long livroId, int paginasLidas) {
-        this.livroId = livroId;
-        this.paginasLidas = paginasLidas;
+    public RegistrarLeituraDTO(String idLivro, Integer paginaLida) {
+        this.idLivro = idLivro;
+        this.paginaLida = paginaLida;
     }
 }

@@ -11,12 +11,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 
 public class GamificacaoService {
     private static final long PONTOS_POR_SESSAO_LEITURA = 20L;
     private static final long TEMPO_MINIMO_ENTRE_PONTOS_SEGUNDOS = 10;
+    private static final Logger log = LoggerFactory.getLogger(GamificacaoService.class);
 
     private final PontuacaoRepository pontuacaoRepository;
     private final NivelarPontuacaoService nivelarPontuacaoService;
@@ -41,7 +44,7 @@ public class GamificacaoService {
                 });
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public PontuacaoResponseDTO buscarPontuacaoUser(User user) {
         Pontuacao pontuacao = garantirPontuacao(user);
         return new PontuacaoResponseDTO(pontuacao.getPontos(), pontuacao.getNivel());
@@ -53,14 +56,20 @@ public class GamificacaoService {
         Pontuacao pontuacao = garantirPontuacao(user);
         pontuacao.adicionarPontos(pontosAdicionados);
 
+        aplicarNivelamento(pontuacao, user);
+
+        return pontuacaoRepository.save(pontuacao);
+    }
+
+    private void aplicarNivelamento(Pontuacao pontuacao, User user) {
         int nivelAntigo = pontuacao.getNivel();
         int nivelNovo = nivelarPontuacaoService.calcularNovoNivel(pontuacao.getPontos());
 
         if (nivelNovo > nivelAntigo){
             pontuacao.setNivel(nivelNovo);
-            System.out.println("Usuário " + user.getName() + " subiu para o nível " + nivelNovo + "!");
+            log.info("Usuário {} subiu de nível. De {} para {}. Pontos totais: {}",
+                    user.getId(), nivelAntigo, nivelNovo, pontuacao.getPontos());
         }
-        return pontuacaoRepository.save(pontuacao);
     }
 
     @Transactional
@@ -87,8 +96,8 @@ public class GamificacaoService {
 
         HistoricoLeitura historico = new HistoricoLeitura(
                 user,
-                request.getLivroId(),
-                request.getPaginasLidas()
+                request.getIdLivro(),
+                request.getPaginaLida()
         );
         historicoLeituraRepository.save(historico);
 

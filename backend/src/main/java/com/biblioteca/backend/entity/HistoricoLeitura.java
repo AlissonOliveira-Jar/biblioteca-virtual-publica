@@ -22,7 +22,7 @@ public class HistoricoLeitura {
     private User user;
 
     @Column(name = "livro_id", nullable = false)
-    private Long livroId;
+    private String livroId;
 
     @Column(name = "paginas_lidas", nullable = false)
     private Integer paginasLidas;
@@ -34,7 +34,7 @@ public class HistoricoLeitura {
     public HistoricoLeitura() {
     }
 
-    public HistoricoLeitura(User user, Long livroId, Integer paginasLidas) {
+    public HistoricoLeitura(User user, String livroId, Integer paginasLidas) {
         this.user = user;
         this.livroId = livroId;
         this.paginasLidas = paginasLidas;
