@@ -56,7 +56,7 @@ const SearchResultsPage = () => {
       case 'Autor': return `/autores/${id}`;
       case 'Artigo': return `/artigos/${id}`;
       case 'Editora': return `/editoras/${id}`;
-      case 'Usuário': return `/perfil/${id}`;
+      case 'Usuário': return `/users/${id}`;
       default: return '#';
     }
   };

@@ -159,4 +159,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(FavoritoAlreadyExistsException.class)
+    public ResponseEntity<Object> handleFavoritoAlreadyExistsException(FavoritoAlreadyExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(FavoritoNotFoundException.class)
+    public ResponseEntity<Object> handleFavoritoNotFoundException(FavoritoNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }

@@ -58,6 +58,16 @@ public class UserService {
 
         return UserDTO.fromEntity(savedUser);
     }
+    
+    public User getUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+    }
+
+    public UserDTO getUserByEmail(String email) {
+        User user = getUserEntityByEmail(email);
+        return UserDTO.fromEntity(user);
+    }
 
     public UserDTO getUserById(UUID id) {
         User user = userRepository.findById(id)
@@ -71,11 +81,6 @@ public class UserService {
                 .stream()
                 .map(User::getName)
                 .collect(Collectors.toList());
-    }
-
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
     private Set<String> validateRoles(Set<String> roles) {

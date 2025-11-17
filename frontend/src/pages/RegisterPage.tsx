@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import * as Form from '@radix-ui/react-form';
+import toast from 'react-hot-toast';
 import { useUserRegistrationHook } from "../hooks/registrationUserHook";
 import type { RegistrationUserSchema } from "../schemas/registrationUserSchema";
 import PasswordInput from '../components/PasswordInput';
@@ -14,6 +15,7 @@ const RegisterPage = () => {
     const strengthScore = calculateStrength(passwordValue || '');
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const onSubmit = async (data: RegistrationUserSchema) => {
         setIsLoading(true);
@@ -23,16 +25,22 @@ const RegisterPage = () => {
         const { confirmPassword, agreeToTerms, ...apiData } = data;
         
         try {
-            const response = await axios.post('/api/auth/register', apiData);
-            console.log("Usuário criado:", response.data);
-            alert("Cadastro realizado com sucesso! Você será redirecionado para o login.");
-            window.location.href = '/login';
+            await axios.post('/api/auth/register', apiData);
+            
+            toast.success("Cadastro realizado com sucesso! Redirecionando para o login...", { duration: 3000 });
+            
+            setTimeout(() => {
+                navigate('/login');
+            }, 500); 
 
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 setApiError(error.response.data.message || 'Erro ao processar a solicitação.');
+                toast.error(error.response.data.message || 'Erro ao processar a solicitação.');
             } else {
-                setApiError("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
+                const serverErrorMessage = "Não foi possível conectar ao servidor. Tente novamente mais tarde.";
+                setApiError(serverErrorMessage);
+                toast.error(serverErrorMessage);
             }
         } finally {
             setIsLoading(false);
@@ -40,7 +48,7 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="flex-grow flex items-center justify-center">
+        <div className="grow flex items-center justify-center">
             <Form.Root 
                 onSubmit={handleSubmit(onSubmit)}
                 className="w-96 bg-zinc-800 p-6 rounded-lg border border-zinc-700 shadow-2xl shadow-primary/20"
@@ -111,9 +119,10 @@ const RegisterPage = () => {
                         type="submit" 
                         disabled={isLoading}
                         className="w-full h-11 rounded-md my-2 text-white font-bold
-                        bg-gradient-to-r from-purple-900 to-violet-500 
-                        hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
-                        transition-all duration-500 cursor-pointer"
+                         bg-linear-to-r from-purple-900 to-violet-500 
+                         hover:scale-105 hover:shadow-lg hover:shadow-violet-500/20
+                         transition-all duration-500 cursor-pointer
+                         disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Enviando...' : 'Cadastrar'}
                     </button>
