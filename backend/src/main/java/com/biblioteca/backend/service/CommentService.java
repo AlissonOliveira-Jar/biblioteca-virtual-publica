@@ -54,11 +54,10 @@ public class CommentService {
         return mapper.toDTO(comment);
     }
 
-    @Transactional(readOnly = true) // Otimiza performance de leitura e mantém sessão aberta
+    @Transactional(readOnly = true)
     public List<CommentResponseDTO> listThreaded(UUID livroId) {
-        // O repository agora usa EntityGraph para trazer tudo otimizado
         List<Comment> rootComments =
-                commentRepository.findByLivroIdAndParentCommentIsNullOrderByCreatedAtDesc(livroId);
+                commentRepository.findByLivroIdAndParentCommentIsNullOrderByHelpfulCountDescCreatedAtDesc(livroId);
 
         return rootComments.stream()
                 .map(mapper::toDTO)
@@ -75,8 +74,6 @@ public class CommentService {
         } else {
             comment.setNotHelpfulCount(comment.getNotHelpfulCount() + 1);
         }
-        // O save é opcional quando se usa @Transactional (Dirty Checking),
-        // mas mal não faz deixar explícito.
         commentRepository.save(comment);
     }
 }

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { FaThumbsUp, FaThumbsDown, FaReply, FaClock } from "react-icons/fa";
+import { useEffect, useState, useMemo } from "react";
+import { FaThumbsUp, FaThumbsDown, FaReply, FaClock, FaFilter } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { commentService } from "../services/commentService";
 import type { CommentResponseDTO } from "../types/comment";
@@ -8,10 +8,14 @@ interface CommentsProps {
     bookId: string;
 }
 
+type FilterType = 'relevant' | 'unpopular' | 'recent' | 'oldest';
+
 const Comments = ({ bookId }: CommentsProps) => {
     const [comments, setComments] = useState<CommentResponseDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [newComment, setNewComment] = useState("");
+
+    const [filter, setFilter] = useState<FilterType>('relevant');
 
     const loadComments = async () => {
         try {
@@ -29,6 +33,36 @@ const Comments = ({ bookId }: CommentsProps) => {
         loadComments();
     }, [bookId]);
 
+    const sortedComments = useMemo(() => {
+        const sorted = [...comments];
+
+        switch (filter) {
+            case 'relevant':
+                return sorted.sort((a, b) => {
+                    if (b.helpfulCount === a.helpfulCount) {
+                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    }
+                    return b.helpfulCount - a.helpfulCount;
+                });
+
+            case 'unpopular':
+                return sorted.sort((a, b) => a.helpfulCount - b.helpfulCount);
+
+            case 'recent':
+                return sorted.sort((a, b) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                );
+
+            case 'oldest':
+                return sorted.sort((a, b) =>
+                    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                );
+
+            default:
+                return sorted;
+        }
+    }, [comments, filter]);
+
     const submitComment = async () => {
         if (!newComment.trim()) return;
 
@@ -38,7 +72,8 @@ const Comments = ({ bookId }: CommentsProps) => {
                 parentCommentId: null
             });
             setNewComment("");
-            await loadComments(); // Recarrega a lista
+            await loadComments();
+            setFilter('recent');
             toast.success("Comentário enviado!");
         } catch {
             toast.error("Erro ao enviar comentário.");
@@ -47,13 +82,37 @@ const Comments = ({ bookId }: CommentsProps) => {
 
     return (
         <div className="mt-10 bg-zinc-800 border border-zinc-700 rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">Comentários ({comments.length})</h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h2 className="text-2xl font-bold text-white">
+                    Comentários ({comments.length})
+                </h2>
 
-            <div className="mb-6">
+                {comments.length > 0 && (
+                    <div className="flex items-center gap-2 bg-zinc-900 px-3 py-2 rounded-lg border border-zinc-700 focus-within:border-primary transition-colors relative">
+                        <FaFilter className="text-gray-400 text-sm pointer-events-none z-10" />
+
+                        <select
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value as FilterType)}
+                            className="bg-transparent text-sm text-white outline-none cursor-pointer appearance-none pl-1 pr-2 relative z-20 w-full"
+                            style={{
+                                colorScheme: 'dark'
+                            }}
+                        >
+                            <option value="relevant" className="bg-zinc-900 text-gray-200 py-2">Mais Relevantes</option>
+                            <option value="recent" className="bg-zinc-900 text-gray-200 py-2">Mais Recentes</option>
+                            <option value="unpopular" className="bg-zinc-900 text-gray-200 py-2">Menos Relevantes</option>
+                            <option value="oldest" className="bg-zinc-900 text-gray-200 py-2">Mais Antigos</option>
+                        </select>
+                    </div>
+                )}
+            </div>
+
+            <div className="mb-8">
                 <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white resize-none focus:ring-2 focus:ring-primary outline-none transition"
+                    className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white resize-none focus:ring-2 focus:ring-primary outline-none transition placeholder-gray-500"
                     placeholder="O que você achou deste livro?"
                     rows={3}
                 />
@@ -72,11 +131,13 @@ const Comments = ({ bookId }: CommentsProps) => {
                 <div className="flex justify-center py-4">
                     <p className="text-gray-400 animate-pulse">Carregando discussões...</p>
                 </div>
-            ) : comments.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">Nenhum comentário ainda. Seja o primeiro a opinar!</p>
+            ) : sortedComments.length === 0 ? (
+                <p className="text-gray-500 text-center py-8 bg-zinc-900/30 rounded-lg border border-dashed border-zinc-700">
+                    Nenhum comentário ainda. <br/> Seja o primeiro a opinar!
+                </p>
             ) : (
                 <div className="space-y-6">
-                    {comments.map((c) => (
+                    {sortedComments.map((c) => (
                         <CommentItem
                             key={c.id}
                             comment={c}
@@ -121,7 +182,6 @@ const CommentItem = ({
 
     const submitReply = async () => {
         if (!replyText.trim()) return;
-
         try {
             await commentService.createComment(bookId, {
                 content: replyText,
@@ -137,16 +197,11 @@ const CommentItem = ({
     };
 
     const formattedDate = new Date(comment.createdAt).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
     return (
         <div className={`bg-zinc-900/50 border border-zinc-700/50 rounded-lg p-4 ${level > 0 ? 'mt-3' : ''}`}>
-            {/* Header do Comentário */}
             <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
                     <span className="font-bold text-white text-sm md:text-base">{comment.userName}</span>
@@ -163,20 +218,16 @@ const CommentItem = ({
             <div className="flex items-center gap-4 text-gray-400 text-sm">
                 <button
                     className={`flex items-center gap-1.5 transition ${isVoting ? 'opacity-50' : 'hover:text-green-400'}`}
-                    onClick={() => vote(true)}
-                    disabled={isVoting}
+                    onClick={() => vote(true)} disabled={isVoting}
                 >
                     <FaThumbsUp /> {comment.helpfulCount}
                 </button>
-
                 <button
                     className={`flex items-center gap-1.5 transition ${isVoting ? 'opacity-50' : 'hover:text-red-400'}`}
-                    onClick={() => vote(false)}
-                    disabled={isVoting}
+                    onClick={() => vote(false)} disabled={isVoting}
                 >
                     <FaThumbsDown /> {comment.notHelpfulCount}
                 </button>
-
                 <button
                     className="flex items-center gap-1.5 hover:text-primary transition"
                     onClick={() => setShowReply(!showReply)}
@@ -191,23 +242,11 @@ const CommentItem = ({
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         className="w-full p-2 bg-zinc-800 border border-zinc-700 text-white rounded-lg resize-none text-sm focus:border-primary outline-none"
-                        rows={2}
-                        placeholder={`Respondendo a ${comment.userName}...`}
-                        autoFocus
+                        rows={2} placeholder={`Respondendo a ${comment.userName}...`} autoFocus
                     />
                     <div className="flex gap-2 mt-2">
-                        <button
-                            onClick={submitReply}
-                            className="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-violet-700"
-                        >
-                            Enviar
-                        </button>
-                        <button
-                            onClick={() => setShowReply(false)}
-                            className="px-3 py-1 bg-transparent border border-zinc-600 text-zinc-400 text-sm rounded hover:text-white"
-                        >
-                            Cancelar
-                        </button>
+                        <button onClick={submitReply} className="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-violet-700">Enviar</button>
+                        <button onClick={() => setShowReply(false)} className="px-3 py-1 bg-transparent border border-zinc-600 text-zinc-400 text-sm rounded hover:text-white">Cancelar</button>
                     </div>
                 </div>
             )}

@@ -11,7 +11,6 @@ import java.util.UUID;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    @EntityGraph(attributePaths = {"user", "replies"})
-    List<Comment> findByLivroIdAndParentCommentIsNullOrderByCreatedAtDesc(UUID livroId);
+    @EntityGraph(attributePaths = {"user", "replies", "replies.user"})
+    List<Comment> findByLivroIdAndParentCommentIsNullOrderByHelpfulCountDescCreatedAtDesc(UUID livroId);
 }
-
