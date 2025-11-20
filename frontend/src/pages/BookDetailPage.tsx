@@ -1,30 +1,30 @@
-import {useEffect, useState, useCallback} from 'react';
-import {useParams, Link, useNavigate} from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     FaBook, FaUserTie, FaBuilding, FaArrowLeft,
     FaSpinner, FaBarcode, FaCalendarAlt, FaLayerGroup,
     FaBookOpen, FaHeart, FaRegHeart
 } from 'react-icons/fa';
-import {FaFileLines} from "react-icons/fa6";
+import { FaFileLines } from "react-icons/fa6";
 
-import {livroService} from '../services/livroService';
-import {autorService} from '../services/autorService';
-import {editoraService} from '../services/editoraService';
-import {favoritoService} from '../services/favoritoService';
-import {useFavoritesCount} from '../hooks/useFavoritesCount';
+import { livroService } from '../services/livroService';
+import { autorService } from '../services/autorService';
+import { editoraService } from '../services/editoraService';
+import { favoritoService } from '../services/favoritoService';
+import { useFavoritesCount } from '../hooks/useFavoritesCount';
 
-import type {Livro} from '../types/livro';
-import type {Autor} from '../types/autor';
-import type {Editora} from '../types/editora';
+import type { Livro } from '../types/livro';
+import type { Autor } from '../types/autor';
+import type { Editora } from '../types/editora';
 
 import Comments from "../components/Comments";
 
 const BookDetailPage = () => {
-    const {id} = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const {favoriteIds, updateFavorites} = useFavoritesCount();
+    const { favoriteIds, updateFavorites } = useFavoritesCount();
     const isFavorite = favoriteIds.includes(id || '');
 
     const [livro, setLivro] = useState<Livro | null>(null);
@@ -41,7 +41,7 @@ const BookDetailPage = () => {
         try {
             if (isCurrent) {
                 await favoritoService.remover(id);
-                toast("Removido dos favoritos", {icon: '💔'});
+                toast("Removido dos favoritos", { icon: '💔' });
             } else {
                 await favoritoService.adicionar(id);
                 toast.success("Adicionado aos favoritos!");
@@ -73,8 +73,7 @@ const BookDetailPage = () => {
                     tasks.push(
                         autorService.getAutorById(livroData.autorId)
                             .then(setAutor)
-                            .catch(() => {
-                            })
+                            .catch(() => {})
                     );
                 }
 
@@ -82,8 +81,7 @@ const BookDetailPage = () => {
                     tasks.push(
                         editoraService.getEditoraById(livroData.editoraId)
                             .then(setEditora)
-                            .catch(() => {
-                            })
+                            .catch(() => {})
                     );
                 }
 
@@ -103,7 +101,7 @@ const BookDetailPage = () => {
     if (loading) {
         return (
             <div className="grow flex items-center justify-center h-64">
-                <FaSpinner className="animate-spin text-primary text-4xl"/>
+                <FaSpinner className="animate-spin text-primary text-4xl" />
                 <p className="ml-4 text-gray-400">Carregando...</p>
             </div>
         );
@@ -132,7 +130,7 @@ const BookDetailPage = () => {
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-primary hover:text-purple-400 transition mb-4"
             >
-                <FaArrowLeft/>
+                <FaArrowLeft />
                 Voltar
             </button>
 
@@ -141,7 +139,7 @@ const BookDetailPage = () => {
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
                     <div className="shrink-0 p-5 bg-zinc-900 rounded-full border border-primary">
-                        <FaBook size={48} className="text-primary"/>
+                        <FaBook size={48} className="text-primary" />
                     </div>
 
                     <div className="grow">
@@ -154,22 +152,22 @@ const BookDetailPage = () => {
                             {autor ? (
                                 <Link to={`/autores/${autor.id}`}
                                       className="flex items-center gap-2 hover:text-primary transition">
-                                    <FaUserTie/> {autor.nome}
+                                    <FaUserTie /> {autor.nome}
                                 </Link>
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    <FaUserTie/> Autor desconhecido
+                                    <FaUserTie /> Autor desconhecido
                                 </span>
                             )}
 
                             {editora ? (
                                 <Link to={`/editoras/${editora.id}`}
                                       className="flex items-center gap-2 hover:text-primary transition">
-                                    <FaBuilding/> {editora.nome}
+                                    <FaBuilding /> {editora.nome}
                                 </Link>
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    <FaBuilding/> Editora desconhecida
+                                    <FaBuilding /> Editora desconhecida
                                 </span>
                             )}
                         </div>
@@ -181,8 +179,8 @@ const BookDetailPage = () => {
                                 className="flex items-center gap-2 p-2 rounded-full text-red-500 hover:bg-red-900/20 transition"
                             >
                                 {isFavorite
-                                    ? <FaHeart size={24}/>
-                                    : <FaRegHeart size={24}/>}
+                                    ? <FaHeart size={24} />
+                                    : <FaRegHeart size={24} />}
                                 <span className="text-sm text-gray-300 hover:text-white">
                                     {isFavorite ? "Nos Favoritos" : "Adicionar aos Favoritos"}
                                 </span>
@@ -193,7 +191,7 @@ const BookDetailPage = () => {
                                     to={`/livros/${livro.id}/ler`}
                                     className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-violet-700 transition"
                                 >
-                                    <FaBookOpen/>
+                                    <FaBookOpen />
                                     Ler Agora
                                 </Link>
                             )}
@@ -216,17 +214,18 @@ const BookDetailPage = () => {
                     <h2 className="text-2xl font-bold text-white mb-4">Detalhes</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-zinc-900/50 rounded-lg">
-                        <InfoItem icon={<FaBarcode/>} label="ISBN" value={livro.isbn}/>
-                        <InfoItem icon={<FaLayerGroup/>} label="Gênero" value={livro.genero}/>
-                        <InfoItem icon={<FaCalendarAlt/>} label="Publicação" value={formatDate(livro.dataPublicacao)}/>
-                        <InfoItem icon={<FaBookOpen/>} label="Edição"
-                                  value={livro.edicao ? `${livro.edicao}ª` : 'N/A'}/>
-                        <InfoItem icon={<FaFileLines/>} label="Páginas" value={livro.numeroPaginas}/>
+                        <InfoItem icon={<FaBarcode />} label="ISBN" value={livro.isbn} />
+                        <InfoItem icon={<FaLayerGroup />} label="Gênero" value={livro.genero} />
+                        <InfoItem icon={<FaCalendarAlt />} label="Publicação" value={formatDate(livro.dataPublicacao)} />
+                        <InfoItem icon={<FaBookOpen />} label="Edição"
+                                  value={livro.edicao ? `${livro.edicao}ª` : 'N/A'} />
+                        <InfoItem icon={<FaFileLines />} label="Páginas" value={livro.numeroPaginas} />
                     </div>
                 </div>
 
-                {/* ⭐ SEÇÃO DE COMENTÁRIOS */}
-                {livro.id && <Comments bookId={livro.id}/>}
+                <div className="w-full h-px bg-zinc-700 my-8" />
+
+                {livro.id && <Comments bookId={livro.id} />}
 
             </div>
         </div>

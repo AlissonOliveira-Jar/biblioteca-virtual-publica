@@ -2,16 +2,16 @@ import api from "./api";
 import type { CommentCreateDTO, CommentResponseDTO } from "../types/comment";
 
 const getComments = async (bookId: string): Promise<CommentResponseDTO[]> => {
-    const res = await api.get(`/books/${bookId}/comments`);
-    return res.data;
+    const { data } = await api.get<CommentResponseDTO[]>(`/books/${bookId}/comments`);
+    return data;
 };
 
 const createComment = async (
     bookId: string,
-    data: CommentCreateDTO
+    commentData: CommentCreateDTO
 ): Promise<CommentResponseDTO> => {
-    const res = await api.post(`/books/${bookId}/comments`, data);
-    return res.data;
+    const { data } = await api.post<CommentResponseDTO>(`/books/${bookId}/comments`, commentData);
+    return data;
 };
 
 const voteComment = async (

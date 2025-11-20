@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "tb_comments")
 @Getter
 @Setter
 public class Comment {
@@ -30,7 +30,7 @@ public class Comment {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "livro_id", nullable = false)
     private Livro livro;
 
     @ManyToOne(fetch = FetchType.LAZY)

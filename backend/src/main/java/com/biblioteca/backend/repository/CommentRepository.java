@@ -1,6 +1,7 @@
 package com.biblioteca.backend.repository;
 
 import com.biblioteca.backend.entity.Comment;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
+    @EntityGraph(attributePaths = {"user", "replies"})
     List<Comment> findByLivroIdAndParentCommentIsNullOrderByCreatedAtDesc(UUID livroId);
 }
 
