@@ -29,6 +29,10 @@ public class CommentController {
             @RequestBody CommentCreateDTO dto,
             @AuthenticationPrincipal User user
     ) {
+        if(user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
         return ResponseEntity.ok(service.create(
                 UUID.fromString(bookId),
                 user.getId(),
@@ -44,5 +48,4 @@ public class CommentController {
         service.vote(UUID.fromString(commentId), helpful);
         return ResponseEntity.ok().build();
     }
-
 }

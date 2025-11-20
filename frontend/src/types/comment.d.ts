@@ -1,20 +1,9 @@
-export interface Comment {
-    id: string;
-    content: string;
-    createdAt: string;
-    userName: string;
-    userId: string;
-    helpfulCount: number;
-    notHelpfulCount: number;
-    replies: Comment[];
-}
-
 export interface CommentResponseDTO {
     id: string;
     userName: string;
     userId: string;
     content: string;
-    createdAt: string;
+    createdAt: string; // Vem como ISO String do Java (Instant)
     helpfulCount: number;
     notHelpfulCount: number;
     replies: CommentResponseDTO[];
