@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PontuacaoRepository extends JpaRepository<Pontuacao,Long>{
     Optional<Pontuacao> findByUser(User user);
+    void deleteByUser(User user);
 }

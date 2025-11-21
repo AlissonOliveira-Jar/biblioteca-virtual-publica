@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import toast from 'react-hot-toast';
@@ -10,6 +10,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
 
+const MIN_REPORT_INTERVAL_MS = 10000;
 
 const BookReaderPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,32 @@ const BookReaderPage = () => {
 
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
+
+const lastReportedPageRef = useRef(0);
+
+const lastReportTimeRef = useRef(Date.now())
+
+const reportReadingProgress = useCallback(async (currentPage: number, bookId: string) => {
+    if (lastReportedPageRef.current >= currentPage) {
+      return;
+    }
+
+    try {
+      const payload = {
+        idLivro: bookId,
+        paginaLida: currentPage,
+        completo: false,
+      };
+
+      await api.post('/gamificacao/registrar-leitura', payload);
+
+      lastReportedPageRef.current = currentPage;
+      lastReportTimeRef.current = Date.now();
+
+    } catch (err) {
+      console.error("Erro ao registrar progresso de leitura:", err);
+    }
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -62,9 +89,36 @@ const BookReaderPage = () => {
     };
   }, [id, navigate]);
 
+
+  useEffect(() => {
+    if (!id || !numPages) return;
+
+    if (pageNumber <= lastReportedPageRef.current) return;
+
+    const now = Date.now();
+    const timeElapsed = now - lastReportTimeRef.current;
+
+    if (timeElapsed >= MIN_REPORT_INTERVAL_MS) {
+      reportReadingProgress(pageNumber, id);
+    } else {
+      const timeToWait = MIN_REPORT_INTERVAL_MS - timeElapsed;
+
+      const timer = setTimeout(() => {
+        if (pageNumber > lastReportedPageRef.current) {
+             reportReadingProgress(pageNumber, id);
+        }
+      }, timeToWait);
+      return () => clearTimeout(timer);
+    }
+  }, [pageNumber, id, numPages, reportReadingProgress]);
+
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
     setPageNumber(1);
+
+    if (id) {
+            reportReadingProgress(1, id);
+        }
   }
 
   const goToPrevPage = () => {

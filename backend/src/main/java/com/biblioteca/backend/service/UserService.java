@@ -6,6 +6,7 @@ import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
 import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
 import com.biblioteca.backend.entity.User;
+import com.biblioteca.backend.response.PontuacaoResponseDTO;
 import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
@@ -29,15 +30,17 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserSearchRepository userSearchRepository;
+    private final GamificacaoService gamificacaoService;
 
     public UserService(UserRepository userRepository, 
                          PasswordEncoder passwordEncoder, 
                          JwtService jwtService, 
-                         UserSearchRepository userSearchRepository) {
+                         UserSearchRepository userSearchRepository, GamificacaoService gamificacaoService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userSearchRepository = userSearchRepository;
+        this.gamificacaoService = gamificacaoService;
     }
 
     @Transactional
@@ -66,14 +69,17 @@ public class UserService {
 
     public UserDTO getUserByEmail(String email) {
         User user = getUserEntityByEmail(email);
-        return UserDTO.fromEntity(user);
+        PontuacaoResponseDTO pontuacaoDto = gamificacaoService.buscarPontuacaoUser(user);
+        return UserDTO.fromEntity(user,pontuacaoDto.pontos(), pontuacaoDto.nivel());
     }
 
     public UserDTO getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
-        return UserDTO.fromEntity(user);
+        PontuacaoResponseDTO pontuacaoDto = gamificacaoService.buscarPontuacaoUser(user);
+
+        return UserDTO.fromEntity(user, pontuacaoDto.pontos(), pontuacaoDto.nivel());
     }
 
     public List<String> getAllUserNames() {
@@ -129,15 +135,20 @@ public class UserService {
 
         String newToken = jwtService.generateToken(updatedUser);
 
-        return new UserUpdateResponseDTO(UserDTO.fromEntity(updatedUser), newToken);
+        PontuacaoResponseDTO pontuacaoDto = gamificacaoService.buscarPontuacaoUser(user);
+
+        UserDTO updatedUserDTO = UserDTO.fromEntity(updatedUser, pontuacaoDto.pontos(), pontuacaoDto.nivel());
+
+        return new UserUpdateResponseDTO(updatedUserDTO, newToken);
     }
 
     @Transactional
     public void deleteUser(UUID id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("Usuário não encontrado");
-        }
-        
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        gamificacaoService.deletarPontuacao(user);
+
         userRepository.deleteById(id);
         
         userSearchRepository.deleteById(id);

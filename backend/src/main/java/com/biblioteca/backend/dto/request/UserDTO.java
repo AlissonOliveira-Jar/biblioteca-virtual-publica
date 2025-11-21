@@ -23,15 +23,26 @@ public record UserDTO(
         Instant createdAt,
 
         @Schema(description = "Conjunto de papéis (roles) atribuídos ao utilizador", example = "[\"USER\", \"ADMIN\"]")
-        Set<String> roles
+        Set<String> roles,
+
+        @Schema(description = "Pontuação de fulano", example = "Fulano da Silva, Pontos: 100")
+        Long pontos,
+
+        @Schema(description = "Nível alcançado de fulano", example = "Fulano da Silva, Nível: 4")
+        Integer nivel
 ) {
-    public static UserDTO fromEntity(User user) {
+    public static UserDTO fromEntity(User user, Long pontos, Integer nivel) {
         return new UserDTO(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getCreatedAt(),
-                user.getRoles()
+                user.getRoles(),
+                pontos,
+                nivel
         );
+    }
+    public static UserDTO fromEntity(User user) {
+        return fromEntity(user, 0L, 1);
     }
 }

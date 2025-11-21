@@ -6,6 +6,8 @@ export interface UserProfile {
   email: string;
   createdAt: string;
   roles: string[];
+  pontos?: number;
+  nivel?: number;
 }
 
 export interface UserUpdateData {

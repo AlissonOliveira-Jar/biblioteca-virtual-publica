@@ -61,6 +61,12 @@ public class GamificacaoService {
         return pontuacaoRepository.save(pontuacao);
     }
 
+    @Transactional
+    public void deletarPontuacao(User user){
+        log.info("Deletando registro de pontuação para o Usuário ID: {}", user.getId());
+        pontuacaoRepository.deleteByUser(user);
+    }
+
     private void aplicarNivelamento(Pontuacao pontuacao, User user) {
         int nivelAntigo = pontuacao.getNivel();
         int nivelNovo = nivelarPontuacaoService.calcularNovoNivel(pontuacao.getPontos());

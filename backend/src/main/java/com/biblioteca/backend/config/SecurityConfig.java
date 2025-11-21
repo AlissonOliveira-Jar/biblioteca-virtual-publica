@@ -7,6 +7,7 @@ import com.biblioteca.backend.service.Oauth2UserService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -60,7 +61,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/users/",
                                 "/api/auth/login",
                                 "/api/auth/esqueci-senha",
                                 "/api/auth/redefinir-senha",
@@ -71,6 +71,7 @@ public class SecurityConfig {
                                 "/kafka/**",
                                 "/api/chat/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
