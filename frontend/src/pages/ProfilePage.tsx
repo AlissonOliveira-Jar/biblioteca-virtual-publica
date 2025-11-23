@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { userService } from '../services/userService';
 import { favoritoService, type FavoritoResponse } from '../services/favoritoService';
-import { FaUserCircle, FaEnvelope, FaCalendarAlt, FaSpinner, FaEdit, FaLock, FaExclamationTriangle, FaHeart } from 'react-icons/fa';
+import { FaUserCircle, FaEnvelope, FaCalendarAlt, FaSpinner, FaEdit, FaLock, FaExclamationTriangle, FaHeart, FaStar, FaTrophy } from 'react-icons/fa';
 import { useUpdateUserProfileForm } from '../hooks/updateUserProfileHook';
 import { useUpdateUserPasswordForm } from '../hooks/updateUserPasswordHook';
 import { useParams, Link } from 'react-router-dom';
@@ -27,7 +27,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [favoriteBooks, setFavoriteBooks] = useState<Livro[]>([]);
-  
+ 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false); 
@@ -70,7 +70,7 @@ const ProfilePage = () => {
         const favsResponse: FavoritoResponse[] = await favoritoService.listar(); 
         setFavoriteBooks(favsResponse.map(f => f.livro).filter((l): l is Livro => l !== undefined));
       } else {
-          setFavoriteBooks([]); 
+          setFavoriteBooks([]);
       }
 
       if (isViewingOwnProfile) {
@@ -209,6 +209,25 @@ const ProfilePage = () => {
                   <span className="text-gray-300 text-lg">{user.email}</span>
                 </div>
               )}
+          {(user.pontos !== undefined && user.nivel !== undefined) && (
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-zinc-900 rounded-lg">
+                            {/* Pontuação */}
+                            <div className="flex items-center gap-3">
+                              <FaStar className="text-yellow-400 text-2xl" />
+                              <span className="text-gray-300 text-lg">
+                                Pontos: <span className="font-extrabold text-xl text-yellow-300">{user.pontos.toLocaleString('pt-BR')}</span>
+                              </span>
+                            </div>
+
+                            {/* Nível */}
+                            <div className="flex items-center gap-3">
+                              <FaTrophy className="text-green-400 text-2xl" />
+                              <span className="text-gray-300 text-lg">
+                                Nível: <span className="font-extrabold text-xl text-green-300">{user.nivel}</span>
+                              </span>
+                            </div>
+                          </div>
+                        )}
             <div className="flex items-center gap-4 p-4 bg-zinc-900 rounded-md">
               <FaCalendarAlt className="text-primary text-xl" />
               <span className="text-gray-300">

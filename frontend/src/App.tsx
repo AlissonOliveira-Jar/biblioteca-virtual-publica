@@ -31,6 +31,7 @@ import PublisherDetailPage from './pages/PublisherDetailPage';
 import MyBooksPage from './pages/MyBooksPage';
 import BookReaderPage from './pages/BookReaderPage';
 import DiscoverBooksPage from './pages/DiscoverBooksPage';
+import RankingPage from './pages/RankingPage.tsx';
 
 const MainLayout = () => {
   return (
@@ -68,6 +69,7 @@ function App() {
           <Route path="/my-books" element={<MyBooksPage />} />
           <Route path="/livros/:id/ler" element={<BookReaderPage />} />
           <Route path="/discover" element={<DiscoverBooksPage />} />
+          <Route path="/usuarios-ranking" element={<RankingPage />} />
         </Route>
 
         {/* --- Rotas de Admin --- */}

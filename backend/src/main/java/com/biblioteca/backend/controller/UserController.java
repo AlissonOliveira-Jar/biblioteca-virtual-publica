@@ -4,6 +4,7 @@ import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
 import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
+import com.biblioteca.backend.dto.response.UserRankingDTO;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -59,6 +60,12 @@ public class UserController {
         List<String> userNames = userService.getAllUserNames();
         return ResponseEntity.ok(userNames);
     }
+    @GetMapping("/ranking")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserRankingDTO>> getUsersRanking() {
+        List<UserRankingDTO> ranking = userService.getUsersRanking();
+        return ResponseEntity.ok(ranking);
+    }
 
     @PutMapping("/{id}")
     @PreAuthorize("@userService.getUserByEmail(principal.name).id == #id or hasRole('ADMIN')")
@@ -81,9 +88,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@userService.getUserByEmail(principal.name).id == #id or hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        UUID userIdToDelete = UUID.fromString(id);
+        userService.deleteUser(userIdToDelete);
         return ResponseEntity.noContent().build();
     }
 

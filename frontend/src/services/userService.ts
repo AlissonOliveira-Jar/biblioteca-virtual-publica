@@ -6,6 +6,8 @@ export interface UserProfile {
   email: string;
   createdAt: string;
   roles: string[];
+  pontos?: number;
+  nivel?: number;
 }
 
 export interface UserUpdateData {
@@ -18,6 +20,13 @@ export interface UserUpdateData {
 export interface UserUpdateResponse {
   user: UserProfile;
   token: string;
+}
+
+export interface UserRankingResponse {
+    userId: string;
+    nome: string;
+    pontos: number;
+    nivel: number;
 }
 
 const getUserProfile = async (id: string): Promise<UserProfile> => {
@@ -53,12 +62,18 @@ const deleteUserById = async (id: string): Promise<void> => {
   await api.delete(`/users/${id}`);
 };
 
+const getGlobalRanking = async (): Promise<UserRankingResponse[]> => {
+    const response = await api.get<UserRankingResponse[]>('/users/ranking');
+    return response.data;
+};
+
 export const userService = {
   // User
   getUserProfile,
   getLoggedUserProfile,
   updateUserProfile,
   deleteMyAccount,
+  getGlobalRanking,
   // Admin
   getAllUsers,
   updateUserRoles,
