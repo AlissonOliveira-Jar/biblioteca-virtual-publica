@@ -4,6 +4,7 @@ import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
 import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
+import com.biblioteca.backend.dto.response.UserRankingDTO;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -58,6 +59,12 @@ public class UserController {
     public ResponseEntity<List<String>> getAllUserNames() {
         List<String> userNames = userService.getAllUserNames();
         return ResponseEntity.ok(userNames);
+    }
+    @GetMapping("/ranking")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserRankingDTO>> getUsersRanking() {
+        List<UserRankingDTO> ranking = userService.getUsersRanking();
+        return ResponseEntity.ok(ranking);
     }
 
     @PutMapping("/{id}")

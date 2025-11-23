@@ -70,7 +70,7 @@ const ProfilePage = () => {
         const favsResponse: FavoritoResponse[] = await favoritoService.listar(); 
         setFavoriteBooks(favsResponse.map(f => f.livro).filter((l): l is Livro => l !== undefined));
       } else {
-          setFavoriteBooks([]); 
+          setFavoriteBooks([]);
       }
 
       if (isViewingOwnProfile) {

@@ -7,6 +7,7 @@ import com.biblioteca.backend.dto.request.UserUpdateDTO;
 import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.response.PontuacaoResponseDTO;
+import com.biblioteca.backend.dto.response.UserRankingDTO;
 import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
@@ -22,7 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class UserService {
 
@@ -61,6 +63,29 @@ public class UserService {
 
         return UserDTO.fromEntity(savedUser);
     }
+    public List<UserRankingDTO> getUsersRanking() {
+        List<User> allUsers = userRepository.findAll();
+        List<PontuacaoComUser> pontuacoesComUser = allUsers.stream()
+                .map(user -> {
+                    PontuacaoResponseDTO pontuacaoDto = gamificacaoService.buscarPontuacaoUser(user);
+                    return new PontuacaoComUser(user, pontuacaoDto);
+                })
+                .collect(Collectors.toList());
+
+        pontuacoesComUser.sort(Comparator.comparing(p -> p.pontuacao.pontos(), Comparator.reverseOrder()));
+        AtomicInteger rankCounter = new AtomicInteger(1);
+
+        return pontuacoesComUser.stream()
+                .map(p -> new UserRankingDTO(
+                        rankCounter.getAndIncrement(),
+                        p.user.getId().toString(),
+                        p.user.getName(),
+                        p.pontuacao.pontos(),
+                        p.pontuacao.nivel()
+                ))
+                .collect(Collectors.toList());
+    }
+    private record PontuacaoComUser(User user, PontuacaoResponseDTO pontuacao) {}
     
     public User getUserEntityByEmail(String email) {
         return userRepository.findByEmail(email)
