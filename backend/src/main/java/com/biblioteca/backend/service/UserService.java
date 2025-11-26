@@ -86,7 +86,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     private record PontuacaoComUser(User user, PontuacaoResponseDTO pontuacao) {}
-    
+
     public User getUserEntityByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
