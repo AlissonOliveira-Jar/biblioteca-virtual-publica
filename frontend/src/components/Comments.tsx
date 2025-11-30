@@ -1,8 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import { FaThumbsUp, FaThumbsDown, FaReply, FaClock, FaFilter } from "react-icons/fa";
+import { FaThumbsUp, FaThumbsDown, FaReply, FaClock, FaFilter, FaFlag, FaBan } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { commentService } from "../services/commentService";
 import type { CommentResponseDTO } from "../types/comment";
+import ReportModal from "./ReportModal";
+import { useAuth } from "../hooks/useAuth"; // Certifique-se que o caminho está correto
 
 interface CommentsProps {
     bookId: string;
@@ -11,6 +13,7 @@ interface CommentsProps {
 type FilterType = 'relevant' | 'unpopular' | 'recent' | 'oldest';
 
 const Comments = ({ bookId }: CommentsProps) => {
+    const { user } = useAuth();
     const [comments, setComments] = useState<CommentResponseDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [newComment, setNewComment] = useState("");
@@ -75,8 +78,13 @@ const Comments = ({ bookId }: CommentsProps) => {
             await loadComments();
             setFilter('recent');
             toast.success("Comentário enviado!");
-        } catch {
-            toast.error("Erro ao enviar comentário.");
+        } catch (error: any) {
+            // Tratamento caso o backend retorne 403 mesmo com o bloqueio visual
+            if (error.response?.status === 403) {
+                toast.error(error.response.data.message || "Você está impedido de comentar.");
+            } else {
+                toast.error("Erro ao enviar comentário.");
+            }
         }
     };
 
@@ -109,22 +117,38 @@ const Comments = ({ bookId }: CommentsProps) => {
             </div>
 
             <div className="mb-8">
-                <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white resize-none focus:ring-2 focus:ring-primary outline-none transition placeholder-gray-500"
-                    placeholder="O que você achou deste livro?"
-                    rows={3}
-                />
-                <div className="flex justify-end mt-2">
-                    <button
-                        onClick={submitComment}
-                        disabled={!newComment.trim()}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-violet-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Publicar
-                    </button>
-                </div>
+                {/* BLOQUEIO DO CAMPO PRINCIPAL */}
+                {user?.isCommentBanned ? (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 flex items-center gap-4 text-red-400">
+                        <FaBan className="text-3xl flex-shrink-0" />
+                        <div>
+                            <h3 className="font-bold text-lg">Comentários Bloqueados</h3>
+                            <p className="text-sm text-red-300/80">
+                                Sua conta está temporariamente impedida de realizar novos comentários ou respostas
+                                devido a infrações das diretrizes da comunidade.
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white resize-none focus:ring-2 focus:ring-primary outline-none transition placeholder-gray-500"
+                            placeholder="O que você achou deste livro?"
+                            rows={3}
+                        />
+                        <div className="flex justify-end mt-2">
+                            <button
+                                onClick={submitComment}
+                                disabled={!newComment.trim()}
+                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-violet-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Publicar
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {loading ? (
@@ -133,7 +157,7 @@ const Comments = ({ bookId }: CommentsProps) => {
                 </div>
             ) : sortedComments.length === 0 ? (
                 <p className="text-gray-500 text-center py-8 bg-zinc-900/30 rounded-lg border border-dashed border-zinc-700">
-                    Nenhum comentário ainda. <br/> Seja o primeiro a opinar!
+                    Nenhum comentário ainda. <br /> Seja o primeiro a opinar!
                 </p>
             ) : (
                 <div className="space-y-6">
@@ -163,9 +187,12 @@ const CommentItem = ({
     bookId: string;
     level: number;
 }) => {
+    const { user } = useAuth(); // Importante: Pegar o user aqui também
     const [replyText, setReplyText] = useState("");
     const [showReply, setShowReply] = useState(false);
     const [isVoting, setIsVoting] = useState(false);
+
+    const [showReportModal, setShowReportModal] = useState(false);
 
     const vote = async (helpful: boolean) => {
         if (isVoting) return;
@@ -191,8 +218,12 @@ const CommentItem = ({
             setShowReply(false);
             refresh();
             toast.success("Resposta enviada!");
-        } catch {
-            toast.error("Erro ao responder.");
+        } catch (error: any) {
+            if (error.response?.status === 403) {
+                toast.error(error.response.data.message || "Você está impedido de comentar.");
+            } else {
+                toast.error("Erro ao responder.");
+            }
         }
     };
 
@@ -228,11 +259,28 @@ const CommentItem = ({
                 >
                     <FaThumbsDown /> {comment.notHelpfulCount}
                 </button>
+
+                {/* BLOQUEIO DO BOTÃO RESPONDER */}
                 <button
-                    className="flex items-center gap-1.5 hover:text-primary transition"
-                    onClick={() => setShowReply(!showReply)}
+                    className={`flex items-center gap-1.5 transition ${
+                        user?.isCommentBanned
+                            ? 'opacity-50 cursor-not-allowed text-gray-600'
+                            : 'hover:text-primary'
+                    }`}
+                    // Só permite abrir o reply se NÃO estiver banido
+                    onClick={() => !user?.isCommentBanned && setShowReply(!showReply)}
+                    title={user?.isCommentBanned ? "Você não pode responder" : "Responder"}
                 >
                     <FaReply /> Responder
+                </button>
+
+                <button
+                    className="flex items-center gap-1.5 hover:text-red-500 transition ml-auto opacity-60 hover:opacity-100"
+                    onClick={() => setShowReportModal(true)}
+                    title="Denunciar comentário"
+                >
+                    <FaFlag />
+                    <span className="hidden md:inline">Denunciar</span>
                 </button>
             </div>
 
@@ -250,6 +298,12 @@ const CommentItem = ({
                     </div>
                 </div>
             )}
+
+            <ReportModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                commentId={comment.id}
+            />
 
             {comment.replies.length > 0 && (
                 <div className={`mt-2 ${level < 3 ? 'ml-4 md:ml-8' : 'ml-2'} border-l-2 border-zinc-700 pl-3`}>

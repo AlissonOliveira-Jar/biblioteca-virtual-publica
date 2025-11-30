@@ -118,6 +118,7 @@ services:
       - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
       - TZ=America/Sao_Paulo
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      - SPRING_FLYWAY_REPAIR_ON_MIGRATE=true
     depends_on:
       postgres:
         condition: service_healthy

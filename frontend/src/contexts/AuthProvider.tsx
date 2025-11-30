@@ -88,14 +88,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [navigate, logout]);
 
   const contextValue: AuthContextType = useMemo(() => ({
-    isAuthenticated,
-    userName,
-    userId,
-    roles,
-    isLoading,
-    login,
-    logout
-  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]);
+      isAuthenticated,
+      userName,
+      userId,
+      roles,
+      isLoading,
+      login,
+      logout
+  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]) as AuthContextType;
 
   return (
     <AuthContext.Provider value={contextValue}>

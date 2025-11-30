@@ -1,11 +1,12 @@
 package com.biblioteca.backend.service;
 
-import com.biblioteca.backend.dto.CommentMapper;
+import com.biblioteca.backend.dto.mapperDTO.CommentMapper;
 import com.biblioteca.backend.dto.request.CommentCreateDTO;
 import com.biblioteca.backend.dto.response.CommentResponseDTO;
 import com.biblioteca.backend.entity.Comment;
 import com.biblioteca.backend.entity.Livro;
 import com.biblioteca.backend.entity.User;
+import com.biblioteca.backend.exception.UserNotAllowedToCommentException;
 import com.biblioteca.backend.repository.CommentRepository;
 import com.biblioteca.backend.repository.LivroRepository;
 import com.biblioteca.backend.repository.UserRepository;
@@ -33,16 +34,21 @@ public class CommentService {
         this.mapper = mapper;
     }
 
-    @Transactional // Garante que o save seja atômico
+    @Transactional
     public CommentResponseDTO create(UUID bookId, UUID userId, CommentCreateDTO dto) {
+
         Livro livro = livroRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        if (user.isCommentBanned()) {
+            throw new UserNotAllowedToCommentException("Sua conta está suspensa de realizar comentários devido a denúncias anteriores.");
+        }
+
         Comment parent = null;
-        // Validação extra: só converte para UUID se não for nulo E não for vazio
+
         if (dto.parentCommentId() != null && !dto.parentCommentId().isBlank()) {
             parent = commentRepository.findById(UUID.fromString(dto.parentCommentId()))
                     .orElseThrow(() -> new RuntimeException("Comentário pai não encontrado"));

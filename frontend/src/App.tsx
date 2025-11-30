@@ -32,6 +32,7 @@ import MyBooksPage from './pages/MyBooksPage';
 import BookReaderPage from './pages/BookReaderPage';
 import DiscoverBooksPage from './pages/DiscoverBooksPage';
 import RankingPage from './pages/RankingPage.tsx';
+import AdminReportsPage from "./pages/AdminReportsPage.tsx";
 
 const MainLayout = () => {
   return (
@@ -75,6 +76,7 @@ function App() {
         {/* --- Rotas de Admin --- */}
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/reports" element={<AdminReportsPage />} />
         </Route>
 
         {/* --- Rotas de Bibliotecário (Gerenciamento) --- */}

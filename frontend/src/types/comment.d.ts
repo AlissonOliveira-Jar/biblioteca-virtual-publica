@@ -3,7 +3,7 @@ export interface CommentResponseDTO {
     userName: string;
     userId: string;
     content: string;
-    createdAt: string; // Vem como ISO String do Java (Instant)
+    createdAt: string;
     helpfulCount: number;
     notHelpfulCount: number;
     replies: CommentResponseDTO[];

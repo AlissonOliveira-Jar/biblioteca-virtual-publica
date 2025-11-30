@@ -1,4 +1,4 @@
-package com.biblioteca.backend.dto;
+package com.biblioteca.backend.dto.mapperDTO;
 
 import com.biblioteca.backend.dto.response.CommentResponseDTO;
 import com.biblioteca.backend.entity.Comment;
