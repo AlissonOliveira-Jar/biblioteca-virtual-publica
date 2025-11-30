@@ -8,6 +8,7 @@ export interface UserProfile {
   roles: string[];
   pontos?: number;
   nivel?: number;
+    isCommentBanned: boolean;
 }
 
 export interface UserUpdateData {

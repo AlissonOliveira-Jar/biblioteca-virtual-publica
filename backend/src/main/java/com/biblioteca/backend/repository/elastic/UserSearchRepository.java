@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface UserSearchRepository extends ElasticsearchRepository<UserDocument, UUID> {
     Page<UserDocument> findByNameOrEmail(String name, String email, Pageable pageable);
+    void deleteByEmail(String email);
 }

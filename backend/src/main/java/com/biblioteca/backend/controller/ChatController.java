@@ -19,7 +19,6 @@ public class ChatController {
 
     @PostMapping("/send")
     public ResponseEntity<Void> sendMessage(@RequestBody ChatMessage message) {
-        // Para garantir, adicionamos o timestamp no momento em que o backend recebe
         ChatMessage messageWithTimestamp = new ChatMessage(
                 message.senderId(),
                 message.receiverId(),

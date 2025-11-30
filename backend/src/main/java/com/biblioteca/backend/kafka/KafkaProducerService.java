@@ -13,7 +13,6 @@ public class KafkaProducerService {
     private static final Logger logger = LoggerFactory.getLogger(KafkaProducerService.class);
     private static final String TOPIC = "chat-messages";
 
-    // O tipo do KafkaTemplate agora é <String, ChatMessage>
     @Autowired
     private KafkaTemplate<String, ChatMessage> kafkaTemplate;
 

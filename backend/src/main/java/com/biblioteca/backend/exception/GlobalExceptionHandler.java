@@ -1,5 +1,6 @@
 package com.biblioteca.backend.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -167,6 +168,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FavoritoNotFoundException.class)
     public ResponseEntity<Object> handleFavoritoNotFoundException(FavoritoNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotAllowedToCommentException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotAllowedToComment(UserNotAllowedToCommentException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        ErrorResponse err = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                "Ação Bloqueada",
+                e.getMessage(),
+                Map.of("path", request.getRequestURI())
+        );
+
+        return ResponseEntity.status(status).body(err);
     }
 
 }

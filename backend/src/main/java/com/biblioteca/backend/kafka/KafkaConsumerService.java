@@ -14,8 +14,5 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "chat-messages", groupId = "biblioteca-group")
     public void consume(ChatMessage message) {
         logger.info(String.format("#### <- Mensagem de chat consumida <- %s", message));
-        // Aqui no futuro, você pode:
-        // 1. Salvar a mensagem no banco de dados.
-        // 2. Enviar a mensagem para o destinatário via WebSockets.
     }
 }
