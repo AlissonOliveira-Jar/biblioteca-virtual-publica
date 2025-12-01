@@ -15,10 +15,8 @@ public class UserFindService {
         this.userRepository = userRepository;
     }
 
-    // 🚨 CRÍTICO: Garante que a busca por email ocorra em sua própria transação de leitura.
     @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(String email) {
-        // Se o problema for o cache da sessão, uma nova transação readOnly deve resolver.
         Optional<User> user = userRepository.findByEmail(email);
 
         System.out.println("UserFindService: Buscando por email '" + email + "' - Encontrado: " + user.isPresent());

@@ -14,7 +14,6 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     @EntityGraph(attributePaths = {"reporter", "reportedComment", "reportedUser", "reportedComment.user"})
     List<Report> findByStatusOrderByCreatedAtDesc(ReportStatus status);
 
-    // ADICIONE ESTES DOIS MÉTODOS:
     List<Report> findByReporter(User reporter);
     List<Report> findByReportedUser(User reportedUser);
 }
