@@ -43,9 +43,11 @@ public class CommentController {
     @PostMapping("/{commentId}/vote")
     public ResponseEntity<Void> vote(
             @PathVariable String commentId,
-            @RequestParam boolean helpful
+            @RequestParam boolean helpful,
+            @AuthenticationPrincipal User user
     ) {
-        service.vote(UUID.fromString(commentId), helpful);
+        service.vote(UUID.fromString(commentId), user.getId(), helpful);
+
         return ResponseEntity.ok().build();
     }
 }
