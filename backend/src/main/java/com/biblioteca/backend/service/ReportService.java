@@ -24,10 +24,9 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final UserService userService; // <--- O SALVADOR DA PÁTRIA
+    private final UserService userService;
     private final ReportMapper mapper;
 
-    // Usamos @Lazy no UserService para evitar dependência circular se houver
     public ReportService(ReportRepository reportRepository,
                          CommentRepository commentRepository,
                          UserRepository userRepository,
@@ -92,30 +91,26 @@ public class ReportService {
                 logger.info(">>> DEBUG: Entrou no case BAN_USER_COMMENT");
                 User targetUser = null;
 
-                // Lógica para identificar quem banir
                 if (report.getReportedComment() != null) {
                     targetUser = report.getReportedComment().getUser();
                 } else if (report.getReportedUser() != null) {
                     targetUser = report.getReportedUser();
                 }
 
-                // 1. BANIR O UTILIZADOR
                 if (targetUser != null) {
                     logger.info(">>> DEBUG: Banindo comentários do utilizador ID: {}", targetUser.getId());
                     targetUser.setCommentBanned(true);
                     userRepository.save(targetUser);
                 }
 
-                // 2. APAGAR O COMENTÁRIO DA DENÚNCIA (NOVA LÓGICA AQUI)
                 if (report.getReportedComment() != null) {
                     logger.info(">>> DEBUG: Apagando o comentário tóxico que gerou o banimento...");
                     commentRepository.delete(report.getReportedComment());
-                    report.setReportedComment(null); // Remove referência para evitar erros
+                    report.setReportedComment(null);
                 }
                 break;
 
             case "DELETE_USER":
-                // ... (mantenha a lógica do DELETE_USER que fizemos antes)
                 logger.info(">>> DEBUG: Entrou no case DELETE_USER");
                 User userToDelete = null;
 

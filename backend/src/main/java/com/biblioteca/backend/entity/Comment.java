@@ -40,6 +40,9 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<Comment> replies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CommentVote> votes = new ArrayList<>();
+
     private int helpfulCount = 0;
     private int notHelpfulCount = 0;
 
