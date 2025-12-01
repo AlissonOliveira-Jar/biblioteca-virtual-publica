@@ -70,6 +70,10 @@ public class User implements UserDetails {
     @Column(name = "reset_token_expiry")
     private Instant resetTokenExpiry;
 
+    @Getter
+    @Column(nullable = false)
+    private boolean isCommentBanned = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -77,9 +81,7 @@ public class User implements UserDetails {
                 .collect(Collectors.toList());
     }
 
-
     public User() {
-
     }
 
     public User(String name, String email) {
@@ -105,5 +107,4 @@ public class User implements UserDetails {
     public String getPassword() {
         return this.password;
     }
-
 }

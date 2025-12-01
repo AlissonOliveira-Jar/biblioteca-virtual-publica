@@ -19,11 +19,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true); 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setIsLoading(true); 
+    setIsLoading(true);
     const token = localStorage.getItem('authToken');
     try {
       if (token) {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setRoles(decodedToken.roles);
         } else {
           localStorage.removeItem('authToken');
-          setIsAuthenticated(false); 
+          setIsAuthenticated(false);
           setUserName(null);
           setUserId(null);
           setRoles([]);
@@ -54,9 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserId(null);
       setRoles([]);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
-  }, []); 
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('authToken');
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserName(null);
     setUserId(null);
     setRoles([]);
-    setIsLoading(false); 
+    setIsLoading(false);
     navigate('/login');
   }, [navigate]);
 
@@ -76,8 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserName(decodedToken.name);
       setUserId(decodedToken.sub);
       setRoles(decodedToken.roles);
-      setIsLoading(false); 
-      
+      setIsLoading(false);
+
       toast.success('Login com Google efetuado com sucesso!');
       navigate('/home');
 
@@ -88,14 +88,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [navigate, logout]);
 
   const contextValue: AuthContextType = useMemo(() => ({
-    isAuthenticated,
-    userName,
-    userId,
-    roles,
-    isLoading,
-    login,
-    logout
-  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]);
+      isAuthenticated,
+      userName,
+      userId,
+      roles,
+      isLoading,
+      login,
+      logout
+  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]) as AuthContextType;
 
   return (
     <AuthContext.Provider value={contextValue}>

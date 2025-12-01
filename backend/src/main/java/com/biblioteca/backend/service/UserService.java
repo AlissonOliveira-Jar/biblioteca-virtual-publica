@@ -5,12 +5,15 @@ import com.biblioteca.backend.dto.request.UserCreateDTO;
 import com.biblioteca.backend.dto.request.UserDTO;
 import com.biblioteca.backend.dto.request.UserUpdateDTO;
 import com.biblioteca.backend.dto.response.UserUpdateResponseDTO;
+import com.biblioteca.backend.entity.Report;
 import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.response.PontuacaoResponseDTO;
 import com.biblioteca.backend.dto.response.UserRankingDTO;
 import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
+import com.biblioteca.backend.repository.CommentRepository;
+import com.biblioteca.backend.repository.ReportRepository;
 import com.biblioteca.backend.repository.UserRepository;
 import com.biblioteca.backend.repository.elastic.UserSearchRepository;
 import com.biblioteca.backend.security.JwtService;
@@ -29,16 +32,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final ReportRepository reportRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserSearchRepository userSearchRepository;
     private final GamificacaoService gamificacaoService;
 
-    public UserService(UserRepository userRepository, 
-                         PasswordEncoder passwordEncoder, 
-                         JwtService jwtService, 
-                         UserSearchRepository userSearchRepository, GamificacaoService gamificacaoService) {
+    public UserService(UserRepository userRepository,
+                       CommentRepository commentRepository,
+                       ReportRepository reportRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService,
+                       UserSearchRepository userSearchRepository,
+                       GamificacaoService gamificacaoService
+    ) {
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
+        this.reportRepository = reportRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userSearchRepository = userSearchRepository;
@@ -58,7 +69,6 @@ public class UserService {
         user.setRoles(Set.of("USER"));
 
         User savedUser = userRepository.save(user);
-        
         userSearchRepository.save(UserDocument.from(savedUser));
 
         return UserDTO.fromEntity(savedUser);
@@ -86,7 +96,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     private record PontuacaoComUser(User user, PontuacaoResponseDTO pontuacao) {}
-    
+
     public User getUserEntityByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
@@ -155,7 +165,6 @@ public class UserService {
         }
 
         User updatedUser = userRepository.save(user);
-        
         userSearchRepository.save(UserDocument.from(updatedUser));
 
         String newToken = jwtService.generateToken(updatedUser);
@@ -164,7 +173,7 @@ public class UserService {
 
         UserDTO updatedUserDTO = UserDTO.fromEntity(updatedUser, pontuacaoDto.pontos(), pontuacaoDto.nivel());
 
-        return new UserUpdateResponseDTO(updatedUserDTO, newToken);
+        return new UserUpdateResponseDTO(UserDTO.fromEntity(updatedUser), newToken);
     }
 
     @Transactional
@@ -172,11 +181,22 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
+        commentRepository.deleteByUser(user);
+
+        List<Report> reportsAsReporter = reportRepository.findByReporter(user);
+        reportRepository.deleteAll(reportsAsReporter);
+
+        List<Report> reportsAsTarget = reportRepository.findByReportedUser(user);
+        for (Report r : reportsAsTarget) {
+            r.setReportedUser(null);
+        }
+        reportRepository.saveAll(reportsAsTarget);
+
         gamificacaoService.deletarPontuacao(user);
 
-        userRepository.deleteById(id);
-        
-        userSearchRepository.deleteById(id);
+        userRepository.delete(user);
+
+        userSearchRepository.deleteByEmail(user.getEmail());
     }
 
     public List<UserDTO> getAllUsers() {
@@ -194,7 +214,6 @@ public class UserService {
         user.setRoles(validateRoles(roles));
 
         User updatedUser = userRepository.save(user);
-
         userSearchRepository.save(UserDocument.from(updatedUser));
 
         return UserDTO.fromEntity(updatedUser);
