@@ -33,6 +33,9 @@ import BookReaderPage from './pages/BookReaderPage';
 import DiscoverBooksPage from './pages/DiscoverBooksPage';
 import RankingPage from './pages/RankingPage.tsx';
 import RecomendacaoPage from './pages/RecomendacaoPage.tsx';
+import AvaliacaoPage from './pages/AvaliacaoPage';
+import ListagemAvaliacaoPage from './pages/ListagemAvaliacaoPage.tsx';
+
 const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen"> 
@@ -71,6 +74,8 @@ function App() {
           <Route path="/discover" element={<DiscoverBooksPage />} />
           <Route path="/usuarios-ranking" element={<RankingPage />} />
           <Route path="/recomendacao" element={<RecomendacaoPage />} />
+          <Route path="/avaliacao" element={<ListagemAvaliacaoPage />} />
+          <Route path="/livros/:id/avaliacao" element={<AvaliacaoPage />} />
         </Route>
 
         {/* --- Rotas de Admin --- */}

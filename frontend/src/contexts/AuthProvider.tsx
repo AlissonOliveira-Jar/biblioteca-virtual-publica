@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [email] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true); 
   const navigate = useNavigate();
@@ -91,11 +92,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated,
     userName,
     userId,
+    email,
     roles,
     isLoading,
     login,
     logout
-  }), [isAuthenticated, userName, userId, roles, isLoading, login, logout]);
+  }), [isAuthenticated, userName, userId, email, roles, isLoading, login, logout]);
 
   return (
     <AuthContext.Provider value={contextValue}>

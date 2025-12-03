@@ -92,6 +92,16 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
+    public User getUserEntityByIdString(String idUsuarioString) {
+        try {
+            UUID id = UUID.fromString(idUsuarioString);
+            return userRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com ID: " + idUsuarioString));
+        } catch (IllegalArgumentException e) {
+            throw new UserNotFoundException("ID de usuário inválido: " + idUsuarioString);
+        }
+    }
+
     public UserDTO getUserByEmail(String email) {
         User user = getUserEntityByEmail(email);
         PontuacaoResponseDTO pontuacaoDto = gamificacaoService.buscarPontuacaoUser(user);

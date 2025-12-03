@@ -7,6 +7,7 @@ import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.service.UserService;
 import com.biblioteca.backend.entity.AvaliacaoLivro;
 import com.biblioteca.backend.service.AvaliacaoLivroService;
+import com.biblioteca.backend.dto.request.LivroAvaliacaoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.biblioteca.backend.dto.request.AvaliacaoRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/avaliacao")
@@ -29,14 +31,15 @@ public class AvaliacaoLivroController {
     public ResponseEntity<?> avaliarLivro(@Valid @RequestBody AvaliacaoRequest request
             , Authentication authentication) {
 
-        try {
-            String email = request.email();
-            log.info("Tentando avaliação para email: {}", email);
+        String idUsuario = request.idUsuario();
+        log.info("Tentando avaliação para idUsuario: {}", idUsuario);
 
-            User user = userService.getUserEntityByEmail(email);
+        try {
+            User user = userService.getUserEntityByIdString(idUsuario);
+
             if (user == null) {
-                log.warn("Usuário não encontrado para email: {}", email);
-                return ResponseEntity.status(404).body("Usuário não encontrado: " + email);
+                log.warn("Usuário não encontrado para ID: {}", idUsuario);
+                return ResponseEntity.status(404).body("Usuário não encontrado: " + idUsuario);
             }
 
             log.info("Usuário encontrado: ID = {}", user.getId());
@@ -49,7 +52,7 @@ public class AvaliacaoLivroController {
             );
             return ResponseEntity.ok(avaliacao);
         } catch (Exception e) {
-            log.error("Erro ao registrar avaliação", e);
+            log.error("Erro ao registrar avaliação para ID: {}", idUsuario, e);
             return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
         }
     }
@@ -57,5 +60,10 @@ public class AvaliacaoLivroController {
     public ResponseEntity<Double> obterMediaAvaliacao(@RequestParam String titulo){
         double media = avaliacaoLivroService.calcularMediaAvaliacao(titulo);
         return ResponseEntity.ok(media);
+    }
+
+    @GetMapping("/catalogo")
+    public ResponseEntity<List<LivroAvaliacaoDTO>> catalogo(@RequestParam UUID usuarioId) {
+        return ResponseEntity.ok(avaliacaoLivroService.listarCatalogo(usuarioId));
     }
 }

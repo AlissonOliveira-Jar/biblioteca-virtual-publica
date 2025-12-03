@@ -121,7 +121,7 @@ const { userName, roles } = useAuth();
               </div>
             </Link>
           )}
-            {/* Card: Ranking (NOVO) */}
+            {/* Card: Ranking */}
               <Link to="/usuarios-ranking" className="group block">
                 <div className="p-6 bg-zinc-800 rounded-lg border border-yellow-500 hover:border-yellow-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                   <FaTrophy className="text-4xl text-yellow-500 mb-4" />
@@ -139,6 +139,19 @@ const { userName, roles } = useAuth();
                      <p className="text-gray-400">
                        Descubra livros sugeridos especialmente para você.
                      </p>
+                  </div>
+                </Link>
+                {/* Card: Avaliações */}
+                <Link to="/avaliacao" className="group block">
+                  <div className="p-6 bg-zinc-800 rounded-lg border border-pink-500 hover:border-pink-400
+                                  hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                    <FaStar className="text-4xl text-pink-400 mb-4" />
+                    <h2 className="text-2xl font-bold text-gray-100 mb-2">
+                      Avaliações
+                    </h2>
+                    <p className="text-gray-400">
+                      Avalie livros que você leu, veja sua nota e a média dos usuários.
+                    </p>
                   </div>
                 </Link>
         </div>
