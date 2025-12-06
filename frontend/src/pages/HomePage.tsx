@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNewspaper, FaBookOpen, FaTrophy, FaStar } from 'react-icons/fa';
+import { FaBook, FaCompass, FaUser, FaCog, FaUserTie, FaBuilding, FaNewspaper, FaBookOpen, FaTrophy, FaStar, FaCommentDots } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
@@ -145,7 +145,7 @@ const { userName, roles } = useAuth();
                 <Link to="/avaliacao" className="group block">
                   <div className="p-6 bg-zinc-800 rounded-lg border border-pink-500 hover:border-pink-400
                                   hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                    <FaStar className="text-4xl text-pink-400 mb-4" />
+                    <FaCommentDots className="text-4xl text-pink-400 mb-4" />
                     <h2 className="text-2xl font-bold text-gray-100 mb-2">
                       Avaliações
                     </h2>

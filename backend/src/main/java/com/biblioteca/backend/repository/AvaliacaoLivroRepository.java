@@ -12,5 +12,5 @@ public interface AvaliacaoLivroRepository extends JpaRepository<AvaliacaoLivro, 
 
     Optional<AvaliacaoLivro> findByIdUsuarioAndTituloLivro(UUID idUsuario, String tituloLivro);
     List<AvaliacaoLivro> findByIdUsuario(UUID idUsuario);
-
+    void deleteByIdUsuario(UUID idUsuario);
 }

@@ -13,6 +13,8 @@ import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
 import com.biblioteca.backend.repository.UserRepository;
 import com.biblioteca.backend.repository.elastic.UserSearchRepository;
+import com.biblioteca.backend.repository.HistoricoLeituraRepository;
+import com.biblioteca.backend.repository.AvaliacaoLivroRepository;
 import com.biblioteca.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,16 +35,23 @@ public class UserService {
     private final JwtService jwtService;
     private final UserSearchRepository userSearchRepository;
     private final GamificacaoService gamificacaoService;
+    private final HistoricoLeituraRepository historicoLeituraRepository;
+    private final AvaliacaoLivroRepository avaliacaoLivroRepository;
 
     public UserService(UserRepository userRepository, 
                          PasswordEncoder passwordEncoder, 
                          JwtService jwtService, 
-                         UserSearchRepository userSearchRepository, GamificacaoService gamificacaoService) {
+                         UserSearchRepository userSearchRepository,
+                         GamificacaoService gamificacaoService,
+                         HistoricoLeituraRepository historicoLeituraRepository,
+                         AvaliacaoLivroRepository avaliacaoLivroRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userSearchRepository = userSearchRepository;
         this.gamificacaoService = gamificacaoService;
+        this.historicoLeituraRepository = historicoLeituraRepository;
+        this.avaliacaoLivroRepository = avaliacaoLivroRepository;
     }
 
     @Transactional
@@ -182,7 +191,11 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
+        historicoLeituraRepository.deleteByUser(user);
+
         gamificacaoService.deletarPontuacao(user);
+
+        avaliacaoLivroRepository.deleteByIdUsuario(user.getId());
 
         userRepository.deleteById(id);
         

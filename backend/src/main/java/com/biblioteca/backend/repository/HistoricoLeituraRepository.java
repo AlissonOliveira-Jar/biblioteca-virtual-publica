@@ -10,6 +10,6 @@ import java.util.UUID;
 @Repository
 public interface HistoricoLeituraRepository extends JpaRepository<HistoricoLeitura, Long> {
      List<HistoricoLeitura> findByUserOrderByDataLeituraDesc(User user);
-
-    List<HistoricoLeitura> findByUser_Id(UUID userId);
+     List<HistoricoLeitura> findByUser_Id(UUID userId);
+     void deleteByUser(User user);
 }
