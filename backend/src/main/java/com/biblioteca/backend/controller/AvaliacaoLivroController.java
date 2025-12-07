@@ -36,14 +36,10 @@ public class AvaliacaoLivroController {
 
         try {
             log.info("Tentando registrar/atualizar avaliação para o usuário: {}", userEmail);
-
-            // 2. Busca a entidade User para obter o ID em UUID
             User user = userService.getUserEntityByEmail(userEmail);
             UUID idUsuario = user.getId();
 
             log.info("Usuário autenticado encontrado. ID: {}", idUsuario);
-
-            // 3. Chama o Service, passando o UUID.
             AvaliacaoLivro avaliacao = avaliacaoLivroService.registrarAvaliacao(
                     idUsuario,
                     request.titulo(),
@@ -73,16 +69,11 @@ public class AvaliacaoLivroController {
 
     @GetMapping("/catalogo")
     public ResponseEntity<List<LivroAvaliacaoDTO>> catalogo(Authentication authentication) {
-
-        // 1. Obtém o email/login do usuário autenticado
         String userEmail = authentication.getName();
 
         try {
-            // 2. Busca a entidade User para obter o ID em UUID
             User user = userService.getUserEntityByEmail(userEmail);
             UUID idUsuario = user.getId();
-
-            // 3. Chama o Service.
             return ResponseEntity.ok(avaliacaoLivroService.listarCatalogo(idUsuario));
 
         } catch (UserNotFoundException e) {
