@@ -50,10 +50,8 @@ public class AvaliacaoLivroController {
 
         } catch (UserNotFoundException e) {
             log.error("Erro de Autenticação: Usuário logado não encontrado no sistema. Email: {}", userEmail, e);
-            // Este caso só deve ocorrer se houver inconsistência entre Auth e DB
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário autenticado não encontrado.");
         } catch (IllegalArgumentException e) {
-            // Captura erros do Service (ex: Livro não encontrado, nota inválida)
             log.warn("Erro ao registrar avaliação para o livro '{}': {}", request.titulo(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
