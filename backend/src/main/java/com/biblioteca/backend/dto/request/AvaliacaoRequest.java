@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 public record AvaliacaoRequest(
         @NotBlank(message = "O título do livro é obrigatório")
         String titulo,
-        @NotBlank String email,
 
         @NotNull(message = "A nota é obrigatória")
         @Min(value = 1, message = "A nota deve ser no mínimo 1")

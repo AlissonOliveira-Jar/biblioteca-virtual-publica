@@ -7,13 +7,17 @@ import com.biblioteca.backend.entity.User;
 import com.biblioteca.backend.service.UserService;
 import com.biblioteca.backend.entity.AvaliacaoLivro;
 import com.biblioteca.backend.service.AvaliacaoLivroService;
+import com.biblioteca.backend.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.biblioteca.backend.dto.request.AvaliacaoRequest;
+import com.biblioteca.backend.dto.response.LivroAvaliacaoDTO;
 import jakarta.validation.Valid;
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/avaliacao")
@@ -28,34 +32,51 @@ public class AvaliacaoLivroController {
     @PostMapping
     public ResponseEntity<?> avaliarLivro(@Valid @RequestBody AvaliacaoRequest request
             , Authentication authentication) {
+        String userEmail = authentication.getName();
 
         try {
-            String email = request.email();
-            log.info("Tentando avaliação para email: {}", email);
+            log.info("Tentando registrar/atualizar avaliação para o usuário: {}", userEmail);
+            User user = userService.getUserEntityByEmail(userEmail);
+            UUID idUsuario = user.getId();
 
-            User user = userService.getUserEntityByEmail(email);
-            if (user == null) {
-                log.warn("Usuário não encontrado para email: {}", email);
-                return ResponseEntity.status(404).body("Usuário não encontrado: " + email);
-            }
-
-            log.info("Usuário encontrado: ID = {}", user.getId());
-
+            log.info("Usuário autenticado encontrado. ID: {}", idUsuario);
             AvaliacaoLivro avaliacao = avaliacaoLivroService.registrarAvaliacao(
-                    user.getId(),
+                    idUsuario,
                     request.titulo(),
                     request.nota(),
                     request.comentario()
             );
-            return ResponseEntity.ok(avaliacao);
+            return ResponseEntity.status(HttpStatus.CREATED).body(avaliacao);
+
+        } catch (UserNotFoundException e) {
+            log.error("Erro de Autenticação: Usuário logado não encontrado no sistema. Email: {}", userEmail, e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário autenticado não encontrado.");
+        } catch (IllegalArgumentException e) {
+            log.warn("Erro ao registrar avaliação para o livro '{}': {}", request.titulo(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            log.error("Erro ao registrar avaliação", e);
-            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+            log.error("Erro interno ao registrar avaliação", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno: " + e.getMessage());
         }
     }
     @GetMapping("/media")
     public ResponseEntity<Double> obterMediaAvaliacao(@RequestParam String titulo){
         double media = avaliacaoLivroService.calcularMediaAvaliacao(titulo);
         return ResponseEntity.ok(media);
+    }
+
+    @GetMapping("/catalogo")
+    public ResponseEntity<List<LivroAvaliacaoDTO>> catalogo(Authentication authentication) {
+        String userEmail = authentication.getName();
+
+        try {
+            User user = userService.getUserEntityByEmail(userEmail);
+            UUID idUsuario = user.getId();
+            return ResponseEntity.ok(avaliacaoLivroService.listarCatalogo(idUsuario));
+
+        } catch (UserNotFoundException e) {
+            log.error("Erro de Autenticação: Usuário logado não encontrado no sistema. Email: {}", userEmail, e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

@@ -12,9 +12,11 @@ import com.biblioteca.backend.dto.response.UserRankingDTO;
 import com.biblioteca.backend.exception.InvalidPasswordException;
 import com.biblioteca.backend.exception.UserAlreadyExistsException;
 import com.biblioteca.backend.exception.UserNotFoundException;
+import com.biblioteca.backend.repository.AvaliacaoLivroRepository;
 import com.biblioteca.backend.repository.CommentRepository;
 import com.biblioteca.backend.repository.ReportRepository;
 import com.biblioteca.backend.repository.UserRepository;
+import com.biblioteca.backend.repository.HistoricoLeituraRepository;
 import com.biblioteca.backend.repository.elastic.UserSearchRepository;
 import com.biblioteca.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class UserService {
 
@@ -35,9 +40,12 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final ReportRepository reportRepository;
     private final PasswordEncoder passwordEncoder;
+    private final HistoricoLeituraRepository historicoLeituraRepository;
+    private final AvaliacaoLivroRepository avaliacaoLivroRepository;
     private final JwtService jwtService;
     private final UserSearchRepository userSearchRepository;
     private final GamificacaoService gamificacaoService;
+
 
     public UserService(UserRepository userRepository,
                        CommentRepository commentRepository,
@@ -45,15 +53,20 @@ public class UserService {
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        UserSearchRepository userSearchRepository,
-                       GamificacaoService gamificacaoService
+                       GamificacaoService gamificacaoService,
+                       HistoricoLeituraRepository historicoLeituraRepository,
+                       AvaliacaoLivroRepository avaliacaoLivroRepository
     ) {
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.reportRepository = reportRepository;
+        this.historicoLeituraRepository = historicoLeituraRepository;
+        this.avaliacaoLivroRepository = avaliacaoLivroRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userSearchRepository = userSearchRepository;
         this.gamificacaoService = gamificacaoService;
+
     }
 
     @Transactional
@@ -191,6 +204,10 @@ public class UserService {
             r.setReportedUser(null);
         }
         reportRepository.saveAll(reportsAsTarget);
+
+        historicoLeituraRepository.deleteByUser(user);
+
+        avaliacaoLivroRepository.deleteByIdUsuario(id);
 
         gamificacaoService.deletarPontuacao(user);
 
