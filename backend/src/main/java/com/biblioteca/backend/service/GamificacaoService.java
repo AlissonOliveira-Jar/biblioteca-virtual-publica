@@ -8,6 +8,9 @@ import com.biblioteca.backend.response.PontuacaoResponseDTO;
 import com.biblioteca.backend.repository.PontuacaoRepository;
 import com.biblioteca.backend.repository.HistoricoLeituraRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Optional;
@@ -24,24 +27,33 @@ public class GamificacaoService {
     private final PontuacaoRepository pontuacaoRepository;
     private final NivelarPontuacaoService nivelarPontuacaoService;
     private final HistoricoLeituraRepository historicoLeituraRepository;
+    private final PontuacaoCreator pontuacaoCreator;
 
     public GamificacaoService(
             PontuacaoRepository pontuacaoRepository,
             HistoricoLeituraRepository historicoLeituraRepository,
-            NivelarPontuacaoService nivelarPontuacaoService){
+            NivelarPontuacaoService nivelarPontuacaoService,
+            PontuacaoCreator pontuacaoCreator){
 
         this.pontuacaoRepository = pontuacaoRepository;
         this.historicoLeituraRepository = historicoLeituraRepository;
         this.nivelarPontuacaoService = nivelarPontuacaoService;
+        this.pontuacaoCreator = pontuacaoCreator;
     }
 
     @Transactional
     public Pontuacao garantirPontuacao(User user){
+        Optional<Pontuacao> pontuacaoOpt = pontuacaoRepository.findByUser(user);
 
-        return pontuacaoRepository.findByUser(user)
-                .orElseGet(() -> {Pontuacao novaPontuacao = new Pontuacao(user);
-                    return pontuacaoRepository.save(novaPontuacao);
-                });
+        if (pontuacaoOpt.isPresent()) {
+            return pontuacaoOpt.get();
+        }
+        try {
+            return pontuacaoCreator.criarPontuacaoEmNovaTransacao(user);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Falha de concorrência (chave duplicada) ao criar Pontuacao para User ID: {}. Rebuscando registro existente.", user.getId());
+            return pontuacaoCreator.rebuscarPontuacaoEmCasoDeFalha(user);
+        }
     }
 
     @Transactional(readOnly = false)
@@ -83,21 +95,22 @@ public class GamificacaoService {
         Pontuacao pontuacao = garantirPontuacao(user);
         Instant agora = Instant.now();
 
-        Instant proximaPontuacaoPermitida = pontuacao.getUltimaPontuacaoLeitura()
-                .plusSeconds(TEMPO_MINIMO_ENTRE_PONTOS_SEGUNDOS);
-
-        boolean pontosConcedidos = false;
+        Instant proximaPontuacaoPermitida = Optional.ofNullable(pontuacao.getUltimaPontuacaoLeitura())
+                .map(lastTime -> lastTime.plusSeconds(TEMPO_MINIMO_ENTRE_PONTOS_SEGUNDOS))
+                .orElse(Instant.MIN);
 
         if (agora.isAfter(proximaPontuacaoPermitida) || agora.equals(proximaPontuacaoPermitida)){
 
             pontuacao.adicionarPontos(PONTOS_POR_SESSAO_LEITURA);
             pontuacao.setUltimaPontuacaoLeitura(agora);
-            pontosConcedidos = true;
 
             int nivelNovo = nivelarPontuacaoService.calcularNovoNivel(pontuacao.getPontos());
             pontuacao.setNivel(nivelNovo);
+
+            log.info("Pontos concedidos para User ID {}: {} pontos. Total: {}", user.getId(), PONTOS_POR_SESSAO_LEITURA, pontuacao.getPontos());
+
         } else {
-            System.out.println("Pontuação rejeitada. Tempo mínimo de " + TEMPO_MINIMO_ENTRE_PONTOS_SEGUNDOS + "s não atingido.");
+            log.info("Pontuação rejeitada para User ID {}. Tempo mínimo de {}s não atingido.", user.getId(), TEMPO_MINIMO_ENTRE_PONTOS_SEGUNDOS);
         }
 
         HistoricoLeitura historico = new HistoricoLeitura(
@@ -111,5 +124,28 @@ public class GamificacaoService {
     }
     public Optional<Pontuacao> buscarPontuacaoPorUser(User user){
         return pontuacaoRepository.findByUser(user);
+    }
+
+    @Component
+    public static class PontuacaoCreator {
+        private static final Logger log = LoggerFactory.getLogger(PontuacaoCreator.class);
+        private final PontuacaoRepository pontuacaoRepository;
+
+        public PontuacaoCreator(PontuacaoRepository pontuacaoRepository) {
+            this.pontuacaoRepository = pontuacaoRepository;
+        }
+
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        public Pontuacao criarPontuacaoEmNovaTransacao(User user) {
+            log.info("Tentando criar novo registro de Pontuacao (REQUIRES_NEW) para User ID: {}", user.getId());
+            Pontuacao novaPontuacao = new Pontuacao(user);
+            return pontuacaoRepository.saveAndFlush(novaPontuacao);
+        }
+        @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+        public Pontuacao rebuscarPontuacaoEmCasoDeFalha(User user) {
+            log.info("Executando re-busca em transação REQUIRES_NEW limpa para User ID: {}", user.getId());
+            return pontuacaoRepository.findByUser(user)
+                    .orElseThrow(() -> new IllegalStateException("Registro de Pontuação deve existir após falha de chave duplicada. User ID: " + user.getId()));
+        }
     }
 }

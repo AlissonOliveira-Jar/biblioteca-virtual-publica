@@ -3,6 +3,7 @@ package com.biblioteca.backend.service;
 import com.biblioteca.backend.repository.LivroRepository;
 import com.biblioteca.backend.entity.Livro;
 import com.biblioteca.backend.entity.AvaliacaoLivro;
+import com.biblioteca.backend.dto.response.LivroAvaliacaoDTO;
 import com.biblioteca.backend.repository.AvaliacaoLivroRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +68,29 @@ public class AvaliacaoLivroService {
             avaliacao = new AvaliacaoLivro(idUsuario,tituloLivro, nota, comentario);
         }
         return avaliacaoLivroRepository.save(avaliacao);
+    }
+
+    public List<LivroAvaliacaoDTO> listarCatalogo(UUID usuarioId) {
+        List<Livro> livros = livroRepository.findAll();
+        List<AvaliacaoLivro> avaliacoes = avaliacaoLivroRepository.findByIdUsuario(usuarioId);
+
+        Map<String, AvaliacaoLivro> mapAvaliacoes =
+                avaliacoes.stream().collect(Collectors.toMap(
+                        AvaliacaoLivro::getTituloLivro,
+                        a -> a
+                ));
+
+        return livros.stream().map(livro -> {
+            AvaliacaoLivro av = mapAvaliacoes.get(livro.getTitulo());
+            return new LivroAvaliacaoDTO(
+                    livro.getId(),
+                    livro.getTitulo(),
+                    livro.getAutor().getNome(),
+                    av != null ? av.getNota() : null,
+                    av != null ? av.getComentario() : null,
+                    av != null
+            );
+        }).collect(Collectors.toList());
     }
 
     public Optional<AvaliacaoLivro> buscarAvaliacaoUsuario(UUID idUsuario, String tituloLivro){
