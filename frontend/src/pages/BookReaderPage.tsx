@@ -8,7 +8,10 @@ import { FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-ico
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 const MIN_REPORT_INTERVAL_MS = 10000;
 
