@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> getMyProfile(Principal principal) {
-        UserDTO user = userService.getUserByEmail(principal.getName()); 
+        UserDTO user = userService.getUserByEmail(principal.getName());
         return ResponseEntity.ok(user);
     }
 
@@ -60,6 +60,7 @@ public class UserController {
         List<String> userNames = userService.getAllUserNames();
         return ResponseEntity.ok(userNames);
     }
+
     @GetMapping("/ranking")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserRankingDTO>> getUsersRanking() {
@@ -87,6 +88,13 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PatchMapping("/{id}/unban")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> unbanUser(@PathVariable UUID id) {
+        userService.unbanUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
@@ -98,7 +106,7 @@ public class UserController {
     @DeleteMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteMyAccount(Principal principal) {
-        User user = userService.getUserEntityByEmail(principal.getName()); 
+        User user = userService.getUserEntityByEmail(principal.getName());
         userService.deleteUser(user.getId());
         return ResponseEntity.noContent().build();
     }

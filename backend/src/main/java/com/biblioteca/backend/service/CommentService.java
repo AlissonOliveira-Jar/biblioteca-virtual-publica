@@ -15,6 +15,8 @@ import com.biblioteca.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,8 +51,25 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        if (!user.canComment()) {
+            String message = "Sua conta está suspensa de realizar comentários.";
+
+            if (user.getCommentBanExpiresAt() != null) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                        .withZone(ZoneId.systemDefault());
+                String dataFormatada = formatter.format(user.getCommentBanExpiresAt());
+                message += " O bloqueio expira em: " + dataFormatada;
+            } else {
+                message += " O banimento é permanente.";
+            }
+
+            throw new UserNotAllowedToCommentException(message);
+        }
+
         if (user.isCommentBanned()) {
-            throw new UserNotAllowedToCommentException("Sua conta está suspensa de realizar comentários devido a denúncias anteriores.");
+            user.setCommentBanned(false);
+            user.setCommentBanExpiresAt(null);
+            userRepository.save(user);
         }
 
         Comment parent = null;

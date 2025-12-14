@@ -11,7 +11,8 @@ import {
     FaTrophy,
     FaFlag,
     FaStar,
-    FaCommentDots
+    FaCommentDots,
+    FaComments
 } from 'react-icons/fa';
 import {useAuth} from '../hooks/useAuth';
 
@@ -24,7 +25,7 @@ const HomePage = () => {
     const canManageAcervo = isAdmin || isBibliotecario;
 
     return (
-        <div className="w-full max-w-5xl mx-auto px-4 py-8">
+        <div className="w-full max-w-6xl mx-auto px-4 py-8">
             <header className="mb-12 text-center">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-violet-500 mb-2">
                     Bem-vindo(a) de volta, {userName || 'Usuário'}!
@@ -37,10 +38,8 @@ const HomePage = () => {
             <main>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-                    {/* Card: Minha Estante */}
                     <Link to="/my-books" className="group block">
-                        <div
-                            className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                             <FaBook className="text-4xl text-primary mb-4"/>
                             <h2 className="text-2xl font-bold text-gray-100 mb-2">Minha Estante</h2>
                             <p className="text-gray-400">
@@ -49,10 +48,8 @@ const HomePage = () => {
                         </div>
                     </Link>
 
-                    {/* Card: Descobrir Livros */}
                     <Link to="/discover" className="group block">
-                        <div
-                            className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                             <FaCompass className="text-4xl text-primary mb-4"/>
                             <h2 className="text-2xl font-bold text-gray-100 mb-2">Descobrir Livros</h2>
                             <p className="text-gray-400">
@@ -61,10 +58,8 @@ const HomePage = () => {
                         </div>
                     </Link>
 
-                    {/* Card: Meu Perfil */}
                     <Link to="/profile" className="group block">
-                        <div
-                            className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-zinc-700 hover:border-primary hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                             <FaUser className="text-4xl text-primary mb-4"/>
                             <h2 className="text-2xl font-bold text-gray-100 mb-2">Meu Perfil</h2>
                             <p className="text-gray-400">
@@ -73,75 +68,16 @@ const HomePage = () => {
                         </div>
                     </Link>
 
-                    {/* --- BLOCO DE GESTÃO DE ACERVO (Bibliotecários e Admins) --- */}
+                    <Link to="/forum" className="group block">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-green-600 hover:border-green-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                            <FaComments className="text-4xl text-green-500 mb-4"/>
+                            <h2 className="text-2xl font-bold text-gray-100 mb-2">Fórum</h2>
+                            <p className="text-gray-400">
+                                Participe de discussões, crie tópicos e interaja com a comunidade.
+                            </p>
+                        </div>
+                    </Link>
 
-                    {canManageAcervo && (
-                        <Link to="/autores" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                                <FaUserTie className="text-4xl text-blue-500 mb-4"/>
-                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Autores</h2>
-                                <p className="text-gray-400">
-                                    Adicionar, editar ou remover autores do sistema.
-                                </p>
-                            </div>
-                        </Link>
-                    )}
-
-                    {canManageAcervo && (
-                        <Link to="/editoras" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                                <FaBuilding className="text-4xl text-blue-500 mb-4"/>
-                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Editoras</h2>
-                                <p className="text-gray-400">
-                                    Adicionar, editar ou remover editoras do sistema.
-                                </p>
-                            </div>
-                        </Link>
-                    )}
-
-                    {canManageAcervo && (
-                        <Link to="/artigos" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                                <FaNewspaper className="text-4xl text-blue-500 mb-4"/>
-                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Artigos</h2>
-                                <p className="text-gray-400">
-                                    Adicionar, editar ou remover artigos científicos.
-                                </p>
-                            </div>
-                        </Link>
-                    )}
-
-                    {canManageAcervo && (
-                        <Link to="/livros" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                                <FaBookOpen className="text-4xl text-blue-500 mb-4"/>
-                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Livros</h2>
-                                <p className="text-gray-400">
-                                    Adicionar, editar ou remover livros.
-                                </p>
-                            </div>
-                        </Link>
-                    )}
-
-                    {/* Card: de Administração */}
-                    {isAdmin && (
-                        <Link to="/admin" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-yellow-500 hover:border-yellow-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                                <FaCog className="text-4xl text-yellow-500 mb-4"/>
-                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Administração</h2>
-                                <p className="text-gray-400">
-                                    Gerenciar usuários e configurações do sistema.
-                                </p>
-                            </div>
-                        </Link>
-                    )}
-
-                    {/* Card: Ranking */}
                     <Link to="/usuarios-ranking" className="group block">
                         <div
                             className="p-6 bg-zinc-800 rounded-lg border border-cyan-400 hover:border-cyan-300 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
@@ -153,11 +89,93 @@ const HomePage = () => {
                         </div>
                     </Link>
 
-                    {/* --- BLOCO DE ADMINISTRAÇÃO (Apenas Admin) --- */}
+                    <Link to="/recomendacao" className="group block">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-purple-500 hover:border-purple-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                            <FaStar className="text-4xl text-purple-400 mb-4" />
+                            <h2 className="text-2xl font-bold text-gray-100 mb-2">Recomendações</h2>
+                            <p className="text-gray-400">
+                                Descubra livros sugeridos especialmente para você.
+                            </p>
+                        </div>
+                    </Link>
+
+                    <Link to="/avaliacao" className="group block">
+                        <div className="p-6 bg-zinc-800 rounded-lg border border-pink-500 hover:border-pink-400
+                                      hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                            <FaCommentDots className="text-4xl text-pink-400 mb-4" />
+                            <h2 className="text-2xl font-bold text-gray-100 mb-2">
+                                Avaliações
+                            </h2>
+                            <p className="text-gray-400">
+                                Avalie livros que você leu, veja sua nota e a média dos usuários.
+                            </p>
+                        </div>
+                    </Link>
+
+                    {canManageAcervo && (
+                        <Link to="/autores" className="group block">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                                <FaUserTie className="text-4xl text-blue-500 mb-4"/>
+                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Autores</h2>
+                                <p className="text-gray-400">
+                                    Adicionar, editar ou remover autores do sistema.
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+
+                    {canManageAcervo && (
+                        <Link to="/editoras" className="group block">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                                <FaBuilding className="text-4xl text-blue-500 mb-4"/>
+                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Editoras</h2>
+                                <p className="text-gray-400">
+                                    Adicionar, editar ou remover editoras do sistema.
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+
+                    {canManageAcervo && (
+                        <Link to="/artigos" className="group block">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                                <FaNewspaper className="text-4xl text-blue-500 mb-4"/>
+                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Artigos</h2>
+                                <p className="text-gray-400">
+                                    Adicionar, editar ou remover artigos científicos.
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+
+                    {canManageAcervo && (
+                        <Link to="/livros" className="group block">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-blue-500 hover:border-blue-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                                <FaBookOpen className="text-4xl text-blue-500 mb-4"/>
+                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Gerenciar Livros</h2>
+                                <p className="text-gray-400">
+                                    Adicionar, editar ou remover livros.
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+
+
+                    {isAdmin && (
+                        <Link to="/admin" className="group block">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-yellow-500 hover:border-yellow-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                                <FaCog className="text-4xl text-yellow-500 mb-4"/>
+                                <h2 className="text-2xl font-bold text-gray-100 mb-2">Administração</h2>
+                                <p className="text-gray-400">
+                                    Gerenciar usuários e configurações do sistema.
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+
                     {isAdmin && (
                         <Link to="/admin/reports" className="group block">
-                            <div
-                                className="p-6 bg-zinc-800 rounded-lg border border-red-500 hover:border-red-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
+                            <div className="p-6 bg-zinc-800 rounded-lg border border-red-500 hover:border-red-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
                                 <FaFlag className="text-4xl text-red-500 mb-4"/>
                                 <h2 className="text-2xl font-bold text-gray-100 mb-2">Moderação</h2>
                                 <p className="text-gray-400">
@@ -166,29 +184,7 @@ const HomePage = () => {
                             </div>
                         </Link>
                     )}
-                    {/* Card: Recomendações*/}
-                    <Link to="/recomendacao" className="group block">
-                      <div className="p-6 bg-zinc-800 rounded-lg border border-purple-500 hover:border-purple-400 hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                         <FaStar className="text-4xl text-purple-400 mb-4" />
-                         <h2 className="text-2xl font-bold text-gray-100 mb-2">Recomendações</h2>
-                         <p className="text-gray-400">
-                           Descubra livros sugeridos especialmente para você.
-                         </p>
-                      </div>
-                    </Link>
-                    {/* Card: Avaliações */}
-                    <Link to="/avaliacao" className="group block">
-                      <div className="p-6 bg-zinc-800 rounded-lg border border-pink-500 hover:border-pink-400
-                                      hover:scale-105 transition-all duration-300 cursor-pointer h-full">
-                        <FaCommentDots className="text-4xl text-pink-400 mb-4" />
-                        <h2 className="text-2xl font-bold text-gray-100 mb-2">
-                          Avaliações
-                        </h2>
-                        <p className="text-gray-400">
-                          Avalie livros que você leu, veja sua nota e a média dos usuários.
-                        </p>
-                      </div>
-                    </Link>
+
                 </div>
             </main>
         </div>

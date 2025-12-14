@@ -36,29 +36,32 @@ import AdminReportsPage from "./pages/AdminReportsPage.tsx";
 import RecommendationPage from './pages/RecommendationPage.tsx';
 import RatingPage from './pages/RatingPage';
 import ListRatingPage from './pages/ListRatingPage.tsx';
+import ForumHome from './pages/ForumHome';
+import CreateTopic from './pages/CreateTopic';
+import TopicDetail from "./pages/TopicDetail.tsx";
 const MainLayout = () => {
-  return (
-    <div className="flex flex-col min-h-screen"> 
-      <Navbar />
-      <main className="grow container mx-auto p-4 flex flex-col">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
-  );
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="grow container mx-auto p-4 flex flex-col">
+                <Outlet />
+            </main>
+            <Footer />
+        </div>
+    );
 };
 
 function App() {
-  return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        {/* --- Rotas Públicas --- */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
-        <Route path="/forbidden" element={<ForbiddenPage />} />
-        <Route path="/server-error" element={<ServerErrorPage />} />
+    return (
+        <Routes>
+            <Route element={<MainLayout />}>
+                {/* --- Rotas Públicas --- */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route path="/forbidden" element={<ForbiddenPage />} />
+                <Route path="/server-error" element={<ServerErrorPage />} />
 
         {/* --- Rotas Protegidas (Usuário Logado) --- */}
         <Route element={<ProtectedRoute />}>
@@ -76,6 +79,9 @@ function App() {
           <Route path="/recomendacao" element={<RecommendationPage />} />
           <Route path="/avaliacao" element={<ListRatingPage />} />
           <Route path="/livros/:id/avaliacao" element={<RatingPage />} />
+          <Route path="/forum" element={<ForumHome />} />
+          <Route path="/forum/new" element={<CreateTopic />} />
+          <Route path="/forum/topics/:topicId" element={<TopicDetail />} />
         </Route>
 
         {/* --- Rotas de Admin --- */}

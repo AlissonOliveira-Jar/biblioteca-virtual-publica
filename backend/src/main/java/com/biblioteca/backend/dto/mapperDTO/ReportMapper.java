@@ -2,6 +2,8 @@ package com.biblioteca.backend.dto.mapperDTO;
 
 import com.biblioteca.backend.dto.response.ReportResponseDTO;
 import com.biblioteca.backend.entity.Comment;
+import com.biblioteca.backend.entity.ForumPost;
+import com.biblioteca.backend.entity.ForumTopic;
 import com.biblioteca.backend.entity.Report;
 import com.biblioteca.backend.entity.User;
 import org.springframework.stereotype.Component;
@@ -17,7 +19,9 @@ public class ReportMapper {
                 report.getCreatedAt(),
                 toUserSummary(report.getReporter()),
                 toCommentDTO(report.getReportedComment()),
-                toUserSummary(report.getReportedUser())
+                toUserSummary(report.getReportedUser()),
+                toTopicDTO(report.getReportedTopic()),
+                toPostDTO(report.getReportedPost())
         );
     }
 
@@ -26,7 +30,9 @@ public class ReportMapper {
         return new ReportResponseDTO.UserSummaryDTO(
                 user.getId().toString(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.isCommentBanned(),
+                user.getCommentBanExpiresAt()
         );
     }
 
@@ -36,6 +42,24 @@ public class ReportMapper {
                 comment.getId().toString(),
                 comment.getContent(),
                 toUserSummary(comment.getUser())
+        );
+    }
+
+    private ReportResponseDTO.ReportedTopicDTO toTopicDTO(ForumTopic topic) {
+        if (topic == null) return null;
+        return new ReportResponseDTO.ReportedTopicDTO(
+                topic.getId().toString(),
+                topic.getTitle(),
+                toUserSummary(topic.getAuthor())
+        );
+    }
+
+    private ReportResponseDTO.ReportedPostDTO toPostDTO(ForumPost post) {
+        if (post == null) return null;
+        return new ReportResponseDTO.ReportedPostDTO(
+                post.getId().toString(),
+                post.getContent(),
+                toUserSummary(post.getAuthor())
         );
     }
 }

@@ -12,9 +12,21 @@ public record ReportResponseDTO(
         Instant createdAt,
         UserSummaryDTO reporter,
         ReportedCommentDTO reportedComment,
-        UserSummaryDTO reportedUser
+        UserSummaryDTO reportedUser,
+        ReportedTopicDTO reportedTopic,
+        ReportedPostDTO reportedPost
 ) {
-    public record UserSummaryDTO(String id, String name, String email) {}
+    public record UserSummaryDTO(
+            String id,
+            String name,
+            String email,
+            boolean isCommentBanned,
+            Instant commentBanExpiresAt
+    ) {}
 
     public record ReportedCommentDTO(String id, String content, UserSummaryDTO user) {}
+
+    public record ReportedTopicDTO(String id, String title, UserSummaryDTO author) {}
+
+    public record ReportedPostDTO(String id, String content, UserSummaryDTO author) {}
 }

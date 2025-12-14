@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { commentService } from "../services/commentService";
 import type { CommentResponseDTO } from "../types/comment";
 import ReportModal from "./ReportModal";
-import { useAuth } from "../hooks/useAuth"; // Certifique-se que o caminho está correto
+import { useAuth } from "../hooks/useAuth";
 
 interface CommentsProps {
     bookId: string;
@@ -47,20 +47,16 @@ const Comments = ({ bookId }: CommentsProps) => {
                     }
                     return b.helpfulCount - a.helpfulCount;
                 });
-
             case 'unpopular':
                 return sorted.sort((a, b) => a.helpfulCount - b.helpfulCount);
-
             case 'recent':
                 return sorted.sort((a, b) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
-
             case 'oldest':
                 return sorted.sort((a, b) =>
                     new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
                 );
-
             default:
                 return sorted;
         }
@@ -79,13 +75,24 @@ const Comments = ({ bookId }: CommentsProps) => {
             setFilter('recent');
             toast.success("Comentário enviado!");
         } catch (error: any) {
-            // Tratamento caso o backend retorne 403 mesmo com o bloqueio visual
             if (error.response?.status === 403) {
-                toast.error(error.response.data.message || "Você está impedido de comentar.");
+                toast.error(error.response.data.message || "Você está impedido de comentar.", {
+                    icon: '🚫',
+                    duration: 5000
+                });
             } else {
                 toast.error("Erro ao enviar comentário.");
             }
         }
+    };
+
+    const getBanMessage = () => {
+        if (!user?.commentBanExpiresAt) return "Sua conta está banida permanentemente.";
+
+        const date = new Date(user.commentBanExpiresAt).toLocaleDateString('pt-BR', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        return `Sua suspensão acaba em: ${date}.`;
     };
 
     return (
@@ -98,14 +105,11 @@ const Comments = ({ bookId }: CommentsProps) => {
                 {comments.length > 0 && (
                     <div className="flex items-center gap-2 bg-zinc-900 px-3 py-2 rounded-lg border border-zinc-700 focus-within:border-primary transition-colors relative">
                         <FaFilter className="text-gray-400 text-sm pointer-events-none z-10" />
-
                         <select
                             value={filter}
                             onChange={(e) => setFilter(e.target.value as FilterType)}
                             className="bg-transparent text-sm text-white outline-none cursor-pointer appearance-none pl-1 pr-2 relative z-20 w-full"
-                            style={{
-                                colorScheme: 'dark'
-                            }}
+                            style={{ colorScheme: 'dark' }}
                         >
                             <option value="relevant" className="bg-zinc-900 text-gray-200 py-2">Mais Relevantes</option>
                             <option value="recent" className="bg-zinc-900 text-gray-200 py-2">Mais Recentes</option>
@@ -117,15 +121,17 @@ const Comments = ({ bookId }: CommentsProps) => {
             </div>
 
             <div className="mb-8">
-                {/* BLOQUEIO DO CAMPO PRINCIPAL */}
                 {user?.isCommentBanned ? (
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 flex items-center gap-4 text-red-400">
-                        <FaBan className="text-3xl flex-shrink-0" />
+                    <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 md:p-6 flex items-start md:items-center gap-4 text-red-400 animate-in fade-in duration-300">
+                        <FaBan className="text-3xl flex-shrink-0 mt-1 md:mt-0" />
                         <div>
-                            <h3 className="font-bold text-lg">Comentários Bloqueados</h3>
-                            <p className="text-sm text-red-300/80">
-                                Sua conta está temporariamente impedida de realizar novos comentários ou respostas
-                                devido a infrações das diretrizes da comunidade.
+                            <h3 className="font-bold text-lg text-red-400">Comentários Bloqueados</h3>
+                            <p className="text-sm text-red-300/80 mt-1">
+                                Você não pode comentar ou responder no momento devido a infrações das diretrizes.
+                                <br />
+                                <span className="font-semibold text-red-300 block mt-1">
+                                    {getBanMessage()}
+                                </span>
                             </p>
                         </div>
                     </div>
@@ -187,11 +193,10 @@ const CommentItem = ({
     bookId: string;
     level: number;
 }) => {
-    const { user } = useAuth(); // Importante: Pegar o user aqui também
+    const { user } = useAuth();
     const [replyText, setReplyText] = useState("");
     const [showReply, setShowReply] = useState(false);
     const [isVoting, setIsVoting] = useState(false);
-
     const [showReportModal, setShowReportModal] = useState(false);
 
     const vote = async (helpful: boolean) => {
@@ -220,7 +225,7 @@ const CommentItem = ({
             toast.success("Resposta enviada!");
         } catch (error: any) {
             if (error.response?.status === 403) {
-                toast.error(error.response.data.message || "Você está impedido de comentar.");
+                toast.error(error.response.data.message || "Você está impedido de responder.", { icon: '🚫' });
             } else {
                 toast.error("Erro ao responder.");
             }
@@ -264,12 +269,11 @@ const CommentItem = ({
                 <button
                     className={`flex items-center gap-1.5 transition ${
                         user?.isCommentBanned
-                            ? 'opacity-50 cursor-not-allowed text-gray-600'
+                            ? 'opacity-50 cursor-not-allowed text-zinc-600'
                             : 'hover:text-primary'
                     }`}
-                    // Só permite abrir o reply se NÃO estiver banido
                     onClick={() => !user?.isCommentBanned && setShowReply(!showReply)}
-                    title={user?.isCommentBanned ? "Você não pode responder" : "Responder"}
+                    title={user?.isCommentBanned ? "Conta suspensa: você não pode responder." : "Responder"}
                 >
                     <FaReply /> Responder
                 </button>
@@ -285,7 +289,7 @@ const CommentItem = ({
             </div>
 
             {showReply && (
-                <div className="mt-3 animate-fade-in-down">
+                <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
                     <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}

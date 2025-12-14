@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,17 +28,23 @@ public class ReportService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final ReportMapper mapper;
+    private final ForumTopicRepository topicRepository;
+    private final ForumPostRepository postRepository;
 
     public ReportService(ReportRepository reportRepository,
                          CommentRepository commentRepository,
                          UserRepository userRepository,
                          @Lazy UserService userService,
-                         ReportMapper mapper) {
+                         ReportMapper mapper,
+                         ForumTopicRepository topicRepository,
+                         ForumPostRepository postRepository) {
         this.reportRepository = reportRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.mapper = mapper;
+        this.topicRepository = topicRepository;
+        this.postRepository = postRepository;
     }
 
     public void createReport(UUID reporterId, ReportCreateDTO dto) {
@@ -56,7 +64,16 @@ public class ReportService {
             User user = userRepository.findById(UUID.fromString(dto.reportedUserId()))
                     .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
             report.setReportedUser(user);
+        } else if (dto.reportedTopicId() != null) {
+            ForumTopic topic = topicRepository.findById(UUID.fromString(dto.reportedTopicId()))
+                    .orElseThrow(() -> new EntityNotFoundException("Tópico não encontrado"));
+            report.setReportedTopic(topic);
+        } else if (dto.reportedPostId() != null) {
+            ForumPost post = postRepository.findById(UUID.fromString(dto.reportedPostId()))
+                    .orElseThrow(() -> new EntityNotFoundException("Resposta não encontrada"));
+            report.setReportedPost(post);
         }
+
         reportRepository.save(report);
     }
 
@@ -72,57 +89,67 @@ public class ReportService {
     }
 
     @Transactional
-    public void resolveReport(UUID reportId, String action) {
-        logger.info(">>> DEBUG: Iniciando resolveReport. ID: {}, Action: {}", reportId, action);
+    public void resolveReport(UUID reportId, String action, String duration) {
+        logger.info(">>> DEBUG: Iniciando resolveReport. ID: {}, Action: {}, Duration: {}", reportId, action, duration);
 
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new EntityNotFoundException("Denúncia não encontrada"));
 
         switch (action) {
             case "DELETE_COMMENT":
-                logger.info(">>> DEBUG: Entrou no case DELETE_COMMENT");
                 if (report.getReportedComment() != null) {
                     commentRepository.delete(report.getReportedComment());
                     report.setReportedComment(null);
+                }
+                break;
+
+            case "DELETE_TOPIC":
+                if (report.getReportedTopic() != null) {
+                    topicRepository.delete(report.getReportedTopic());
+                    report.setReportedTopic(null);
+                }
+                break;
+
+            case "DELETE_POST":
+                if (report.getReportedPost() != null) {
+                    postRepository.delete(report.getReportedPost());
+                    report.setReportedPost(null);
                 }
                 break;
 
             case "BAN_USER_COMMENT":
-                logger.info(">>> DEBUG: Entrou no case BAN_USER_COMMENT");
-                User targetUser = null;
-
-                if (report.getReportedComment() != null) {
-                    targetUser = report.getReportedComment().getUser();
-                } else if (report.getReportedUser() != null) {
-                    targetUser = report.getReportedUser();
-                }
+                User targetUser = extractTargetUser(report);
 
                 if (targetUser != null) {
-                    logger.info(">>> DEBUG: Banindo comentários do utilizador ID: {}", targetUser.getId());
                     targetUser.setCommentBanned(true);
-                    userRepository.save(targetUser);
-                }
 
-                if (report.getReportedComment() != null) {
-                    logger.info(">>> DEBUG: Apagando o comentário tóxico que gerou o banimento...");
-                    commentRepository.delete(report.getReportedComment());
-                    report.setReportedComment(null);
+                    Instant expiryDate = calculateExpiryDate(duration);
+                    targetUser.setCommentBanExpiresAt(expiryDate);
+
+                    userRepository.save(targetUser);
+                    logger.info("Usuário {} banido. Expira em: {}", targetUser.getEmail(), expiryDate);
+                    deleteContentFromReport(report);
+                }
+                break;
+
+            case "UNBAN_USER":
+                User userToUnban = extractTargetUser(report);
+                if (userToUnban != null) {
+                    userToUnban.setCommentBanned(false);
+                    userToUnban.setCommentBanExpiresAt(null);
+                    userRepository.save(userToUnban);
+                    logger.info("Usuário {} desbanido.", userToUnban.getEmail());
                 }
                 break;
 
             case "DELETE_USER":
-                logger.info(">>> DEBUG: Entrou no case DELETE_USER");
-                User userToDelete = null;
-
-                if (report.getReportedUser() != null) {
-                    userToDelete = report.getReportedUser();
-                } else if (report.getReportedComment() != null) {
-                    userToDelete = report.getReportedComment().getUser();
-                }
+                User userToDelete = extractTargetUser(report);
 
                 if (userToDelete != null) {
                     report.setReportedUser(null);
                     report.setReportedComment(null);
+                    report.setReportedTopic(null);
+                    report.setReportedPost(null);
                     userService.deleteUser(userToDelete.getId());
                 }
                 break;
@@ -137,5 +164,45 @@ public class ReportService {
 
         report.setStatus(ReportStatus.RESOLVED);
         reportRepository.save(report);
+    }
+
+    private User extractTargetUser(Report report) {
+        if (report.getReportedComment() != null) return report.getReportedComment().getUser();
+        if (report.getReportedUser() != null) return report.getReportedUser();
+        if (report.getReportedTopic() != null) return report.getReportedTopic().getAuthor();
+        if (report.getReportedPost() != null) return report.getReportedPost().getAuthor();
+        return null;
+    }
+
+    private void deleteContentFromReport(Report report) {
+        if (report.getReportedComment() != null) {
+            commentRepository.delete(report.getReportedComment());
+            report.setReportedComment(null);
+        } else if (report.getReportedTopic() != null) {
+            topicRepository.delete(report.getReportedTopic());
+            report.setReportedTopic(null);
+        } else if (report.getReportedPost() != null) {
+            postRepository.delete(report.getReportedPost());
+            report.setReportedPost(null);
+        }
+    }
+
+    private Instant calculateExpiryDate(String duration) {
+        if (duration == null || duration.isEmpty()) {
+            return null;
+        }
+
+        Instant now = Instant.now();
+
+        return switch (duration.toUpperCase()) {
+            case "2H" -> now.plus(2, ChronoUnit.HOURS);
+            case "12H" -> now.plus(12, ChronoUnit.HOURS);
+            case "1D" -> now.plus(1, ChronoUnit.DAYS);
+            case "1W" -> now.plus(7, ChronoUnit.DAYS);
+            case "1M" -> now.plus(30, ChronoUnit.DAYS);
+            case "1Y" -> now.plus(365, ChronoUnit.DAYS);
+            case "PERMANENT" -> null;
+            default -> null;
+        };
     }
 }

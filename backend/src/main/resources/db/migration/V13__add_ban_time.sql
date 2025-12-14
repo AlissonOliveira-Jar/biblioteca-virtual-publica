@@ -1,0 +1,1 @@
+ALTER TABLE tb_users ADD COLUMN comment_ban_expires_at TIMESTAMP;
