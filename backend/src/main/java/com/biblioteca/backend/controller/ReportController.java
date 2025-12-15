@@ -33,8 +33,12 @@ public class ReportController {
 
     @PostMapping("/admin/{id}/resolve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> resolve(@PathVariable String id, @RequestParam String action) {
-        service.resolveReport(UUID.fromString(id), action);
+    public ResponseEntity<Void> resolve(
+            @PathVariable String id,
+            @RequestParam String action,
+            @RequestParam(required = false) String duration
+    ) {
+        service.resolveReport(UUID.fromString(id), action, duration);
         return ResponseEntity.ok().build();
     }
 }

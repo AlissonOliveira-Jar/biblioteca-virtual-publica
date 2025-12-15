@@ -1,26 +1,27 @@
 import api from './api';
 
 export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-  roles: string[];
-  pontos?: number;
-  nivel?: number;
+    id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+    roles: string[];
+    pontos?: number;
+    nivel?: number;
     isCommentBanned: boolean;
+    commentBanExpiresAt?: string | null;
 }
 
 export interface UserUpdateData {
-  name?: string;
-  email?: string;
-  currentPassword?: string;
-  newPassword?: string;
+    name?: string;
+    email?: string;
+    currentPassword?: string;
+    newPassword?: string;
 }
 
 export interface UserUpdateResponse {
-  user: UserProfile;
-  token: string;
+    user: UserProfile;
+    token: string;
 }
 
 export interface UserRankingResponse {
@@ -31,36 +32,36 @@ export interface UserRankingResponse {
 }
 
 const getUserProfile = async (id: string): Promise<UserProfile> => {
-  const response = await api.get<UserProfile>(`/users/${id}`);
-  return response.data;
+    const response = await api.get<UserProfile>(`/users/${id}`);
+    return response.data;
 };
 
 const getLoggedUserProfile = async (): Promise<UserProfile> => {
-  const response = await api.get<UserProfile>(`/users/me`);
-  return response.data;
+    const response = await api.get<UserProfile>(`/users/me`);
+    return response.data;
 };
 
 const updateUserProfile = async (id: string, data: UserUpdateData): Promise<UserUpdateResponse> => {
-  const response = await api.put<UserUpdateResponse>(`/users/${id}`, data);
-  return response.data;
+    const response = await api.put<UserUpdateResponse>(`/users/${id}`, data);
+    return response.data;
 };
 
 const deleteMyAccount = async (): Promise<void> => {
-  await api.delete('/users');
+    await api.delete('/users');
 };
 
 const getAllUsers = async (): Promise<UserProfile[]> => {
-  const response = await api.get<UserProfile[]>('/users');
-  return response.data;
+    const response = await api.get<UserProfile[]>('/users');
+    return response.data;
 };
 
 const updateUserRoles = async (id: string, roles: string[]): Promise<UserProfile> => {
-  const response = await api.patch<UserProfile>(`/users/${id}/roles`, roles);
-  return response.data;
+    const response = await api.patch<UserProfile>(`/users/${id}/roles`, roles);
+    return response.data;
 };
 
 const deleteUserById = async (id: string): Promise<void> => {
-  await api.delete(`/users/${id}`);
+    await api.delete(`/users/${id}`);
 };
 
 const getGlobalRanking = async (): Promise<UserRankingResponse[]> => {
@@ -68,15 +69,18 @@ const getGlobalRanking = async (): Promise<UserRankingResponse[]> => {
     return response.data;
 };
 
+const unbanUser = async (id: string): Promise<void> => {
+    await api.patch(`/users/${id}/unban`);
+};
+
 export const userService = {
-  // User
-  getUserProfile,
-  getLoggedUserProfile,
-  updateUserProfile,
-  deleteMyAccount,
-  getGlobalRanking,
-  // Admin
-  getAllUsers,
-  updateUserRoles,
-  deleteUserById,
+    getUserProfile,
+    getLoggedUserProfile,
+    updateUserProfile,
+    deleteMyAccount,
+    getGlobalRanking,
+    getAllUsers,
+    updateUserRoles,
+    deleteUserById,
+    unbanUser,
 };

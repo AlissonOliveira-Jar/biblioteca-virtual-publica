@@ -66,7 +66,6 @@ public class UserService {
         this.jwtService = jwtService;
         this.userSearchRepository = userSearchRepository;
         this.gamificacaoService = gamificacaoService;
-
     }
 
     @Transactional
@@ -86,6 +85,7 @@ public class UserService {
 
         return UserDTO.fromEntity(savedUser);
     }
+
     public List<UserRankingDTO> getUsersRanking() {
         List<User> allUsers = userRepository.findAll();
         List<PontuacaoComUser> pontuacoesComUser = allUsers.stream()
@@ -187,6 +187,17 @@ public class UserService {
         UserDTO updatedUserDTO = UserDTO.fromEntity(updatedUser, pontuacaoDto.pontos(), pontuacaoDto.nivel());
 
         return new UserUpdateResponseDTO(UserDTO.fromEntity(updatedUser), newToken);
+    }
+
+    @Transactional
+    public void unbanUser(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        user.setCommentBanned(false);
+        user.setCommentBanExpiresAt(null);
+        userRepository.save(user);
+        userSearchRepository.save(UserDocument.from(user));
     }
 
     @Transactional

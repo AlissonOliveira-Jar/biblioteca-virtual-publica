@@ -71,6 +71,8 @@ public class SecurityConfig {
                                 "/kafka/**",
                                 "/api/chat/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/forum/**").permitAll()
+                        .requestMatchers("/api/reports/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

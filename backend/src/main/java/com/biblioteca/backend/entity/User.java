@@ -74,6 +74,27 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isCommentBanned = false;
 
+    @Getter
+    @Column(name = "comment_ban_expires_at")
+    private Instant commentBanExpiresAt;
+
+    @Getter
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    public boolean canComment() {
+        if (!this.isCommentBanned) {
+            return true;
+        }
+
+        if (this.commentBanExpiresAt != null) {
+            if (this.commentBanExpiresAt.isBefore(Instant.now())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -107,4 +128,13 @@ public class User implements UserDetails {
     public String getPassword() {
         return this.password;
     }
+
+    public void setCommentBanExpiresAt(Instant commentBanExpiresAt) {
+        this.commentBanExpiresAt = commentBanExpiresAt;
+    }
+
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
 }

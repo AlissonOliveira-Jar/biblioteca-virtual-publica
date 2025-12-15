@@ -1,18 +1,26 @@
-// Enums/Constantes para os Motivos
-export const ReportReason = {
-    SPAM: "SPAM",
-    OFFENSIVE_LANGUAGE: "OFFENSIVE_LANGUAGE",
-    HATE_SPEECH: "HATE_SPEECH",
-    FAKE_PROFILE: "FAKE_PROFILE",
-    OTHER: "OTHER"
-} as const;
-
-export type ReportReason = typeof ReportReason[keyof typeof ReportReason];
+export type ReportReason =
+    | 'SPAM'
+    | 'OFFENSIVE_LANGUAGE'
+    | 'HATE_SPEECH'
+    | 'FAKE_PROFILE'
+    | 'MISINFORMATION'
+    | 'SPOILER'
+    | 'OTHER';
 
 export interface ReportCreateDTO {
-    reportedCommentId?: string;
-    reportedUserId?: string;
     reason: ReportReason;
+    reportedUserId?: string;
+    reportedCommentId?: string;
+    reportedTopicId?: string;
+    reportedPostId?: string;
+}
+
+interface UserSummary {
+    id: string;
+    name: string;
+    email: string;
+    isCommentBanned?: boolean;
+    commentBanExpiresAt?: string;
 }
 
 export interface ReportDTO {
@@ -21,24 +29,25 @@ export interface ReportDTO {
     status: string;
     createdAt: string;
 
-    reporter: {
-        id: string;
-        name: string;
-        email: string;
-    };
+    reporter?: UserSummary;
+
+    reportedUser?: UserSummary;
 
     reportedComment?: {
         id: string;
         content: string;
-        user: {
-            id: string;
-            name: string;
-        }
+        user: UserSummary;
     };
 
-    reportedUser?: {
+    reportedTopic?: {
         id: string;
-        name: string;
-        email: string
+        title: string;
+        author: UserSummary;
+    };
+
+    reportedPost?: {
+        id: string;
+        content: string;
+        author: UserSummary;
     };
 }

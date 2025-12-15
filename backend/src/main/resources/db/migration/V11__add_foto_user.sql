@@ -1,0 +1,1 @@
+ALTER TABLE tb_users ADD COLUMN avatar_url VARCHAR(500);
